@@ -46,9 +46,17 @@ dir.create(method_dir, recursive = T)
 norm_counts = DESeq2::counts(object = dds, normalized = T)
 res <- results(dds, contrast = c("conditions","KO","WT"))
 
+degs = res[res$padj < 0.05,] %>% rownames()
 
+for (deg in degs) {
+  norm_counts[deg, ] %>% 
+    barplot(las=2, col = c(rep('gray', 6), 
+                           rep('pink', 6)))
+  
+  readline(prompt="Press [enter] to continue")
+}
 
-a = norm_counts['3821', ] %>% 
+a = norm_counts[degs[2], ] %>% 
   as.data.frame() %>% 
   cbind(c(rep('WT', ncol(cts_control)), rep('KO', ncol(cts_treatment))))
 
