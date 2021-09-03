@@ -26,22 +26,33 @@ cts_treatment = nkg2a_cts %>%
 cts = cbind.data.frame(cts_control, cts_treatment)
 
 coldata = data.frame(row.names = colnames(cts), 
-                     conditions = c(rep('WT', ncol(cts_control)), 
-                                    rep('KO', ncol(cts_treatment))))
+                     conditions = c(rep('WT', ncol(cts_control)), rep('KO', ncol(cts_treatment))),
+                     batch = rep(1:6, 2))
 
 rownames(coldata) %in% colnames(cts) %>% all() %>% stopifnot()
 all(rownames(coldata) == colnames(cts)) %>% stopifnot()
 
 dds = DESeqDataSetFromMatrix(countData = cts, 
                              colData = coldata, 
-                             design = ~ conditions)
+                             design = ~ batch + conditions)
 
 dds <- DESeq(dds)
 
-contrast = c('conditions', paste(comp, dose, sep = '_'), control)
+contrast = c("conditions","KO","WT")
 
 method_dir = 'output/data/nkg2a'
-dir.create(method_dir)
+dir.create(method_dir, recursive = T)
+
+norm_counts = DESeq2::counts(object = dds, normalized = T)
+res <- results(dds, contrast = c("conditions","KO","WT"))
 
 
 
+a = norm_counts['3821', ] %>% 
+  as.data.frame() %>% 
+  cbind(c(rep('WT', ncol(cts_control)), rep('KO', ncol(cts_treatment))))
+
+colnames(a) = c('expr', 'cond')
+
+
+boxplot(expr ~ cond, a)
