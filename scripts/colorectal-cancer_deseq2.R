@@ -52,14 +52,21 @@ res2$padj[is.na(res2$padj)] = 1
 
 degs = res2[res2$padj < 0.05,] %>% rownames()
 
-for (deg in degs) {
+deg_i = c('ENSG00000188822',
+          'ENSG00000158055'
+)
+  # grep('ENSG00000163534', degs)
+deg_f = length(degs)
+
+for (deg in deg_i) { # degs[deg_i:deg_f]
+  
   norm_counts[deg, ] %>% 
-    barplot(las=2, 
+    barplot(las  =2, 
             col = c(rep('gray', ncol(cts_control)), 
                     rep('pink', ncol(cts_treatment))), 
             main = deg)
   print(deg)
-  readline(prompt="Press [enter] to continue")
+  readline(prompt = "Press [enter] to continue")
 }
 
 a = norm_counts[degs[2], ] %>% 
