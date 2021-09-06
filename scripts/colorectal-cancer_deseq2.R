@@ -53,8 +53,7 @@ res2$padj[is.na(res2$padj)] = 1
 degs = res2[res2$padj < 0.05,] %>% rownames()
 
 deg_i = c('ENSG00000188822',
-          'ENSG00000158055'
-)
+          'ENSG00000158055')
   # grep('ENSG00000163534', degs)
 deg_f = length(degs)
 
