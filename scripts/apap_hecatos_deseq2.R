@@ -49,16 +49,19 @@ res <- results(dds, contrast = c("conditions","APA_The","ConDMSO"))
 res2 = res
 res2 = res2[!is.na(res2$padj), ]
 
-degs = res2[res2$padj >= 0.1 & res2$padj < 0.2,] %>% 
+degs = res2[res2$padj >= 0.05 & res2$padj < 0.1,] %>% 
   as.data.frame()
-degs = degs[order(degs$padj), ] %>% 
-  dplyr::filter(pvalue < 0.05)
+degs = degs[order(degs$padj), ] #%>% 
+  # dplyr::filter(pvalue < 0.05)
 degs %>% summary()
 degs = degs %>% rownames()
 # degs = res2[order(res2$padj, decreasing = T),] %>% rownames()
 
-deg_i = grep("ENSG00000168214", degs)
+deg_i = grep("ENSG00000070061", degs)
 deg_f = length(degs)
+
+'ENSG00000138606		last'
+
 
 for (deg in degs) { # [deg_i:deg_f]
   
