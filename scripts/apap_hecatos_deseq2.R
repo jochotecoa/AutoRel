@@ -46,13 +46,16 @@ dir.create(method_dir, recursive = T)
 norm_counts = DESeq2::counts(object = dds, normalized = T)
 res <- results(dds, contrast = c("conditions","APA_The","ConDMSO"))
 
-res2 = res
-res2 = res2[!is.na(res2$padj), ]
 
-degs = res2[res2$padj >= 0.05 & res2$padj < 0.1,] %>% 
+# Barplotting -------------------------------------------------------------
+
+
+res2 = res[!is.na(res$padj), ]
+
+degs = res2[res2$padj >= 0.1 & res2$padj < 0.2,] %>% 
   as.data.frame()
-degs = degs[order(degs$padj), ] #%>% 
-  # dplyr::filter(pvalue < 0.05)
+degs = degs[order(degs$padj), ] %>% 
+  dplyr::filter(pvalue > 0.05)
 degs %>% summary()
 degs = degs %>% rownames()
 # degs = res2[order(res2$padj, decreasing = T),] %>% rownames()
@@ -110,12 +113,55 @@ for (deg in degs[deg_i:deg_f]) { # [deg_i:deg_f]
 }
 
 
+# Putting final results toguether -----------------------------------------
+
+manual_annot = read.csv('data/apap_hecatos_manual_significant.csv')
+
+man_ann_res = subset.data.frame(x = res2, subset = rownames(res2) %in% manual_annot$ensembl_gene_id) %>% 
+  as.data.frame()
+
+manual_annot_2 = man_ann_res %>% 
+  rownames_to_column('ensembl_gene_id') %>% 
+  merge.data.frame(x = manual_annot, y = ., by = 'ensembl_gene_id') %>% 
+  dplyr::select(ensembl_gene_id, significant, pvalue, padj) %>% 
+  column_to_rownames('ensembl_gene_id')
+
+manual_annot_2 = manual_annot_2[manual_annot$ensembl_gene_id, ]
+
+big_padj_nondegs = res2 %>% 
+  as.data.frame() %>% 
+  dplyr::filter(padj >= 0.2) %>% 
+  rownames()
+
+non_degs_0.1 = res2 %>% 
+  as.data.frame() %>% 
+  dplyr::filter(padj >= 0.1, padj < 0.2, pvalue > 0.05)
+
+non_degs_0.1 = non_degs_0.1[order(non_degs_0.1$padj), ]
+
+which(rownames(non_degs_0.1) %in% rownames(manual_annot_2))
+non_degs_0.1 = non_degs_0.1[1:grep("ENSG00000004487", rownames(non_degs_0.1)), ]
+
+non_degs_0.1_0.05 = res2 %>% 
+  as.data.frame() %>% 
+  dplyr::filter(padj >= 0.1, padj < 0.2, pvalue < 0.05) 
+ 
+  .[1:50, ] %>% 
+  row.names()
+
+
 manual_degs = data.frame(ensembl_gene_id = row.names(res), significance = NA)
 
-na_non_degs = res2[is.na(res2$padj),] %>% 
+na_non_degs = res[is.na(res$padj),] %>% 
   rownames()
 
 manual_degs[manual_degs$ensembl_gene_id %in% na_non_degs, 'significance'] = F
+manual_degs[manual_degs$ensembl_gene_id %in% big_padj_nondegs, 'significance'] = F
+
+
+# Boxplotting -------------------------------------------------------------
+
+
 
 degis = c('ENSG00000004487', 'ENSG00000005007')
 
