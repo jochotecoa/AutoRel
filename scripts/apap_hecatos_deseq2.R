@@ -52,18 +52,15 @@ res <- results(dds, contrast = c("conditions","APA_The","ConDMSO"))
 
 res2 = res[!is.na(res$padj), ]
 
-degs = res2[res2$padj >= 0.1 & res2$padj < 0.2,] %>% 
+degs = res2[res2$padj < 0.05, ] %>% 
   as.data.frame()
-degs = degs[order(degs$padj), ] %>% 
-  dplyr::filter(pvalue > 0.05)
+degs = degs[order(degs$padj), ]
 degs %>% summary()
 degs = degs %>% rownames()
 # degs = res2[order(res2$padj, decreasing = T),] %>% rownames()
 
-deg_i = grep("ENSG00000070061", degs)
+deg_i = grep("ENSG00000255366", degs)
 deg_f = length(degs)
-
-'ENSG00000138606		last'
 
 
 for (deg in degs) { # [deg_i:deg_f]
@@ -140,13 +137,34 @@ non_degs_0.1 = res2 %>%
 non_degs_0.1 = non_degs_0.1[order(non_degs_0.1$padj), ]
 
 which(rownames(non_degs_0.1) %in% rownames(manual_annot_2))
-non_degs_0.1 = non_degs_0.1[1:grep("ENSG00000004487", rownames(non_degs_0.1)), ]
+non_degs_0.1 = non_degs_0.1[1:grep("ENSG00000004487", rownames(non_degs_0.1)), ] %>% 
+  row.names()
 
 non_degs_0.1_0.05 = res2 %>% 
   as.data.frame() %>% 
   dplyr::filter(padj >= 0.1, padj < 0.2, pvalue < 0.05) 
- 
-  .[1:50, ] %>% 
+non_degs_0.1_0.05 = non_degs_0.1_0.05[order(non_degs_0.1_0.05$padj), ]
+
+which(rownames(non_degs_0.1_0.05) %in% rownames(manual_annot_2))
+non_degs_0.1_0.05 = non_degs_0.1_0.05 %>% 
+  row.names()
+
+non_degs_0.05 = res2 %>% 
+  as.data.frame() %>% 
+  dplyr::filter(padj >= 0.05, padj < 0.1) 
+non_degs_0.05 = non_degs_0.05[order(non_degs_0.05$padj), ]
+
+# which(rownames(non_degs_0.05) %in% rownames(manual_annot_2))
+non_degs_0.05 = non_degs_0.05[1:grep("ENSG00000138606", rownames(non_degs_0.05)), ] %>% 
+  row.names()
+
+degs_0.05 = res2 %>% 
+  as.data.frame() %>% 
+  dplyr::filter(padj < 0.05) 
+degs_0.05 = degs_0.05[order(degs_0.05$padj), ]
+
+# which(rownames(degs_0.05) %in% rownames(manual_annot_2))
+degs_0.05 = degs_0.05[1:grep("ENSG00000134115", rownames(degs_0.05)), ] %>% 
   row.names()
 
 
@@ -157,7 +175,31 @@ na_non_degs = res[is.na(res$padj),] %>%
 
 manual_degs[manual_degs$ensembl_gene_id %in% na_non_degs, 'significance'] = F
 manual_degs[manual_degs$ensembl_gene_id %in% big_padj_nondegs, 'significance'] = F
+manual_degs[manual_degs$ensembl_gene_id %in% non_degs_0.1, 'significance'] = F
+manual_degs[manual_degs$ensembl_gene_id %in% non_degs_0.1_0.05, 'significance'] = F
+manual_degs[manual_degs$ensembl_gene_id %in% non_degs_0.05, 'significance'] = F
+manual_degs[manual_degs$ensembl_gene_id %in% degs_0.05, 'significance'] = T
 
+old_ncol = nrow(manual_degs)
+manual_degs = manual_degs %>% 
+  merge.data.frame(y = manual_annot, by = 'ensembl_gene_id')
+stopifnot(old_ncol == nrow(manual_degs))
+
+manual_degs[!is.na(manual_degs$significance.y), 'significance.x'] = 
+  manual_degs[!is.na(manual_degs$significance.y), 'significance.y']
+
+manual_degs[is.na(manual_degs$significance.y), 'significance.y'] = 
+  manual_degs[is.na(manual_degs$significance.y), 'significance.x']
+
+stopifnot(all.equal(manual_degs[, 'significance.x'], 
+                    manual_degs[, 'significance.y']))
+
+colnames(manual_degs)[grep('significance.x', colnames(manual_degs))] = 
+  'significance'
+
+manual_degs = manual_degs[, -grep('significance.y', colnames(manual_degs))]
+
+stopifnot(ncol(manual_degs) == 2)
 
 # Boxplotting -------------------------------------------------------------
 
