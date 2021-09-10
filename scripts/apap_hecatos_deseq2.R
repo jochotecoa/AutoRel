@@ -109,10 +109,35 @@ for (deg in degs[deg_i:deg_f]) { # [deg_i:deg_f]
   readline(prompt = "Press [enter] to continue")
 }
 
+# Boxplotting -------------------------------------------------------------
+
+
+
+degis = c('ENSG00000000003')
+
+for (degi in degis) {
+  data_bxplt = norm_counts[degi, ] %>% 
+    as.data.frame() %>% 
+    cbind(c(rep('ConDMSO', ncol(cts_control)), rep('APA_The', ncol(cts_treatment))))
+  data_bxplt = data.frame(ConDMSO = data_bxplt[grep('ConDMSO', rownames(data_bxplt)), 1], 
+                          APA_The = data_bxplt[grep('APA_The', rownames(data_bxplt)), 1])
+  boxplot(x = data_bxplt, ylab = 'normalized_counts', main = degi)
+  readline(prompt = "Press [enter] to continue")
+  
+}
+
+
+
 
 # Putting final results toguether -----------------------------------------
 
 manual_annot = read.csv('data/apap_hecatos_manual_significant.csv')
+manual_annot$significance = gsub(pattern = 'T', replacement = 'significant', x = manual_annot$significance)
+manual_annot$significance = gsub(pattern = 'F', replacement = 'nonsignificant', x = manual_annot$significance)
+
+if (ncol(manual_annot) > 2) {
+  manual_annot = manual_annot[, 1:2]
+}
 
 man_ann_res = subset.data.frame(x = res2, subset = rownames(res2) %in% manual_annot$ensembl_gene_id) %>% 
   as.data.frame()
@@ -173,17 +198,17 @@ manual_degs = data.frame(ensembl_gene_id = row.names(res), significance = NA)
 na_non_degs = res[is.na(res$padj),] %>% 
   rownames()
 
-manual_degs[manual_degs$ensembl_gene_id %in% na_non_degs, 'significance'] = F
-manual_degs[manual_degs$ensembl_gene_id %in% big_padj_nondegs, 'significance'] = F
-manual_degs[manual_degs$ensembl_gene_id %in% non_degs_0.1, 'significance'] = F
-manual_degs[manual_degs$ensembl_gene_id %in% non_degs_0.1_0.05, 'significance'] = F
-manual_degs[manual_degs$ensembl_gene_id %in% non_degs_0.05, 'significance'] = F
-manual_degs[manual_degs$ensembl_gene_id %in% degs_0.05, 'significance'] = T
+manual_degs[manual_degs$ensembl_gene_id %in% na_non_degs, 'significance'] = 'nonsignificant'
+manual_degs[manual_degs$ensembl_gene_id %in% big_padj_nondegs, 'significance'] = 'nonsignificant'
+manual_degs[manual_degs$ensembl_gene_id %in% non_degs_0.1, 'significance'] = 'nonsignificant'
+manual_degs[manual_degs$ensembl_gene_id %in% non_degs_0.1_0.05, 'significance'] = 'nonsignificant'
+manual_degs[manual_degs$ensembl_gene_id %in% non_degs_0.05, 'significance'] = 'nonsignificant'
+manual_degs[manual_degs$ensembl_gene_id %in% degs_0.05, 'significance'] = 'significant'
 
-old_ncol = nrow(manual_degs)
+old_nrow = nrow(manual_degs)
 manual_degs = manual_degs %>% 
-  merge.data.frame(y = manual_annot, by = 'ensembl_gene_id')
-stopifnot(old_ncol == nrow(manual_degs))
+  merge.data.frame(y = manual_annot, by = 'ensembl_gene_id', all = T)
+stopifnot(old_nrow == nrow(manual_degs))
 
 manual_degs[!is.na(manual_degs$significance.y), 'significance.x'] = 
   manual_degs[!is.na(manual_degs$significance.y), 'significance.y']
@@ -197,25 +222,9 @@ stopifnot(all.equal(manual_degs[, 'significance.x'],
 colnames(manual_degs)[grep('significance.x', colnames(manual_degs))] = 
   'significance'
 
-manual_degs = manual_degs[, -grep('significance.y', colnames(manual_degs))]
+manual_degs = manual_degs[, -grep('significance.y', colnames(manual_degs))] %>% 
+  na.omit()
 
 stopifnot(ncol(manual_degs) == 2)
-
-# Boxplotting -------------------------------------------------------------
-
-
-
-degis = c('ENSG00000004487', 'ENSG00000005007')
-
-for (degi in degis) {
-  data_bxplt = norm_counts[degi, ] %>% 
-    as.data.frame() %>% 
-    cbind(c(rep('ConDMSO', ncol(cts_control)), rep('APA_The', ncol(cts_treatment))))
-  data_bxplt = data.frame(ConDMSO = data_bxplt[grep('ConDMSO', rownames(data_bxplt)), 1], 
-                          APA_The = data_bxplt[grep('APA_The', rownames(data_bxplt)), 1])
-  boxplot(x = data_bxplt, ylab = 'normalized_counts', main = degi)
-  readline(prompt = "Press [enter] to continue")
-  
-}
 
 
