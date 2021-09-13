@@ -1,7 +1,18 @@
+source('scripts/functions/functions_JOA.R')
+forceLibrary(c('biomaRt', "tximport", "dplyr", "DESeq2", "grid", "ggplot2", 
+               "pheatmap", "BiocParallel", 'tibble'))
+
+res = readRDS(file = 'data/apap_hecatos/results_dds_deseq2_apap_hecatos.rds')
+
+manual_degs = readRDS(file = 'data/apap_hecatos/manual_degs_apap_hecatos.rds')
+
+
 manual_degs_2 = res %>% 
   as.data.frame() %>% 
   rownames_to_column('ensembl_gene_id') %>% 
   merge.data.frame(x = ., y = manual_degs, by = 'ensembl_gene_id', all.y = T)
+
+manual_degs_2$padj[is.na(manual_degs_2$padj)] = 1
 
 norm_counts_2 = norm_counts %>% 
   as.data.frame() %>% 
@@ -18,7 +29,7 @@ norm_counts_treat = norm_counts_2[, grep('APA_The', colnames(norm_counts_2))]
 treat_length = ncol(norm_counts_treat)
 
 
-apply_list_fns <- function(x, fns = c('max', 'min', 'median', 'mean', 'sd', 'var'), quantiles = NULL) {
+apply_list_fns <- function(x, fns = c('mean', 'sd', 'var'), quantiles = NULL) {
   for (fns_i in fns) {
     fns_i_chr = fns_i
     fns_i_funct = get('fns_i')
@@ -38,12 +49,32 @@ apply_list_fns <- function(x, fns = c('max', 'min', 'median', 'mean', 'sd', 'var
 }
 
 norm_counts_con_2 = norm_counts_con %>% 
-  apply_list_fns(fns = c('max', 'min', 'median', 'mean', 'sd', 'var', 'quantile'), 
-                 quantiles = c(seq(0.1, 0.9, 0.1), 0.25, 0.75))
+  apply_list_fns(fns = c('mean', 'sd', 'var')) 
+  
 norm_counts_treat_2 = norm_counts_treat %>% 
-  apply_list_fns(fns = c('max', 'min', 'median', 'mean', 'sd', 'var', 'quantile'), 
-                 quantiles = c(seq(0.1, 0.9, 0.1), 0.25, 0.75))
+  apply_list_fns(fns = c('mean', 'sd', 'var'))
 
+norm_counts_con_quantiles = norm_counts_con %>% 
+  apply(1, quantile, seq(0, 1, 0.05)) %>% 
+  t()
+norm_counts_treat_quantiles = norm_counts_treat %>% 
+  apply(1, quantile, seq(0, 1, 0.05)) %>% 
+  t()
+
+colnames(norm_counts_con_quantiles) = colnames(norm_counts_con_quantiles) %>% 
+  paste0('quantile_', .)
+colnames(norm_counts_treat_quantiles) = colnames(norm_counts_treat_quantiles) %>% 
+  paste0('quantile_', .)
+
+stopifnot(identical(rownames(norm_counts_con_2), 
+                    rownames(norm_counts_con_quantiles)), 
+          identical(rownames(norm_counts_treat_quantiles), 
+                    rownames(norm_counts_con_quantiles)))
+
+norm_counts_con_2 = norm_counts_con_2 %>% 
+  cbind.data.frame(norm_counts_con_quantiles)
+norm_counts_treat_2 = norm_counts_treat_2 %>% 
+  cbind.data.frame(norm_counts_treat_quantiles)
 
 subsample_median <- function(x, num_var, portions) {
   prev_port = 0
@@ -81,13 +112,13 @@ zeroCount <- function(x, na.rm = T) {
 }
 
 norm_counts_con_4$N_nonexpressed_samples = 
-  norm_counts_con_4[, grep('ConDMSO', colnames(norm_counts_con_4))] %>% 
+  norm_counts_con %>% 
   apply(1, zeroCount)
 norm_counts_con_4$Proportion_nonexpressed_samples = 
   norm_counts_con_4$N_nonexpressed_samples / con_length
 
 norm_counts_treat_4$N_nonexpressed_samples = 
-  norm_counts_treat_4[, grep('treatDMSO', colnames(norm_counts_treat_4))] %>% 
+  norm_counts_treat %>% 
   apply(1, zeroCount)
 norm_counts_treat_4$Proportion_nonexpressed_samples = 
   norm_counts_treat_4$N_nonexpressed_samples / treat_length
@@ -102,8 +133,75 @@ norm_counts_con_4$N_outliers = norm_counts_con_4[, colnames_con] %>%
   apply(1, countOutliers)
 norm_counts_con_4$Proportion_outliers = 
   norm_counts_con_4$N_outliers / con_length
+norm_counts_con_4$N_extreme_outliers = norm_counts_con_4[, colnames_con] %>% 
+  apply(1, countOutliers, onlyExtreme = T)
+norm_counts_con_4$Proportion_extreme_outliers = 
+  norm_counts_con_4$N_extreme_outliers / con_length
+norm_counts_con_4$N_mild_outliers = 
+  norm_counts_con_4$N_outliers - norm_counts_con_4$N_extreme_outliers
+norm_counts_con_4$Proportion_mild_outliers = 
+  norm_counts_con_4$N_mild_outliers / con_length
 
 norm_counts_treat_4$N_outliers = norm_counts_treat_4[, colnames_treat] %>% 
   apply(1, countOutliers)
 norm_counts_treat_4$Proportion_outliers = 
   norm_counts_treat_4$N_outliers / treat_length
+norm_counts_treat_4$N_extreme_outliers = norm_counts_treat_4[, colnames_treat] %>% 
+  apply(1, countOutliers, onlyExtreme = T)
+norm_counts_treat_4$Proportion_extreme_outliers = 
+  norm_counts_treat_4$N_extreme_outliers / treat_length
+norm_counts_treat_4$N_mild_outliers = 
+  norm_counts_treat_4$N_outliers - norm_counts_treat_4$N_extreme_outliers
+norm_counts_treat_4$Proportion_mild_outliers = 
+  norm_counts_treat_4$N_mild_outliers / con_length
+
+
+colnames(norm_counts_con_4)[!colnames(norm_counts_con_4) %in% colnames_con] = 
+  paste0(colnames(norm_counts_con_4)[!colnames(norm_counts_con_4) %in% colnames_con], '_', 'ConDMSO')
+colnames(norm_counts_treat_4)[!colnames(norm_counts_treat_4) %in% colnames_treat] = 
+  paste0(colnames(norm_counts_treat_4)[!colnames(norm_counts_treat_4) %in% colnames_treat], '_', 'APA_The')
+
+stopifnot(identical(rownames(norm_counts_con_4), rownames(norm_counts_treat_4)))
+  
+norm_counts_4 = norm_counts_con_4 %>% 
+  cbind.data.frame(norm_counts_treat_4)
+
+norm_counts_features = norm_counts_4[, !grepl('ConDMSO_|APA_The_', 
+                                              colnames(norm_counts_4))]
+
+dupl_cols = norm_counts_features %>% t %>% duplicated
+norm_counts_features = norm_counts_features[, !dupl_cols]
+
+
+feature_names = colnames(norm_counts_features) %>% 
+  subset(., grepl('_ConDMSO', .)) %>% 
+  gsub(pattern = '_ConDMSO', replacement = '')
+
+for (feature_name in feature_names) {
+  norm_counts_feature = 
+    norm_counts_features[, grepl(pattern = feature_name, 
+                                 x = colnames(norm_counts_features))]
+  
+  stopifnot(ncol(norm_counts_feature) == 2)
+  
+  pseudocount = min(norm_counts_feature[norm_counts_feature > 0], na.rm = T) * 0.1
+  
+  norm_counts_feature = norm_counts_feature + pseudocount
+  
+  fold_change_feature = norm_counts_feature[, 2] / norm_counts_feature[, 1]
+
+  norm_counts_features[, paste0('foldchange_', feature_name)] = 
+    fold_change_feature
+}
+
+norm_counts_features %>% saveRDS('data/apap_hecatos/norm_counts_features.rds')
+
+# norm_counts_treat_4 = norm_counts_treat_4[, !grepl('nonexpressed', colnames(norm_counts_treat_4))]
+
+# colnames(norm_counts_con_4) = 
+#   colnames(norm_counts_con_4) %>% 
+#   gsub('_ConDMSO', '', .)
+# colnames(norm_counts_treat_4) = 
+#   colnames(norm_counts_treat_4) %>% 
+#   gsub('_APA_The', '', .)
+
