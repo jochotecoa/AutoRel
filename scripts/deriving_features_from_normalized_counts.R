@@ -166,6 +166,9 @@ stopifnot(identical(rownames(norm_counts_con_4), rownames(norm_counts_treat_4)))
 norm_counts_4 = norm_counts_con_4 %>% 
   cbind.data.frame(norm_counts_treat_4)
 
+raw_counts = norm_counts = DESeq2::counts(object = dds, normalized = F)
+cpm_counts = 
+
 norm_counts_features = norm_counts_4[, !grepl('ConDMSO_|APA_The_', 
                                               colnames(norm_counts_4))]
 
@@ -194,14 +197,19 @@ for (feature_name in feature_names) {
     fold_change_feature
 }
 
+norm_counts_features$medianoverthirdquantile = 
+  norm_counts_features['quantile_50%_APA_The'] > norm_counts_features['quantile_75%_ConDMSO']
+norm_counts_features$medianbelowfirstquantile = 
+  norm_counts_features['quantile_50%_APA_The'] < norm_counts_features['quantile_25%_ConDMSO']
+
 norm_counts_features %>% saveRDS('data/apap_hecatos/norm_counts_features.rds')
 
 # norm_counts_treat_4 = norm_counts_treat_4[, !grepl('nonexpressed', colnames(norm_counts_treat_4))]
 
-# colnames(norm_counts_con_4) = 
-#   colnames(norm_counts_con_4) %>% 
-#   gsub('_ConDMSO', '', .)
-# colnames(norm_counts_treat_4) = 
-#   colnames(norm_counts_treat_4) %>% 
-#   gsub('_APA_The', '', .)
+colnames(norm_counts_con_4) =
+  colnames(norm_counts_con_4) %>%
+  gsub('_ConDMSO', '', .)
+colnames(norm_counts_treat_4) =
+  colnames(norm_counts_treat_4) %>%
+  gsub('_APA_The', '', .)
 
