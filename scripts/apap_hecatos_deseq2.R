@@ -1,3 +1,8 @@
+
+# deseq2 pipeline ---------------------------------------------------------
+
+
+
 # wget https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE164541&format=file&file=GSE164541%5FANT%5Fcount%2Ecsv%2Egz
 source('scripts/functions/functions_JOA.R')
 forceLibrary(c('biomaRt', "tximport", "dplyr", "DESeq2", "grid", "ggplot2", 

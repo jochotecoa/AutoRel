@@ -1,11 +1,30 @@
 source('scripts/functions/functions_JOA.R')
 forceLibrary(c('biomaRt', "tximport", "dplyr", "DESeq2", "grid", "ggplot2", 
-               "pheatmap", "BiocParallel", 'tibble'))
+               "pheatmap", "BiocParallel", 'tibble', 'edgeR'))
 
 res = readRDS(file = 'data/apap_hecatos/results_dds_deseq2_apap_hecatos.rds')
 
 manual_degs = readRDS(file = 'data/apap_hecatos/manual_degs_apap_hecatos.rds')
 
+colnames_con = subset(x = colnames(norm_counts), 
+                      grepl('ConDMSO', colnames(norm_counts)))
+colnames_treat = subset(x = colnames(norm_counts), 
+                        grepl('APA_The', colnames(norm_counts)))
+
+
+cpm_norm_counts = cpm(norm_counts) %>% as.data.frame()
+cpm_norm_counts_con = cpm_norm_counts[, colnames_con]
+cpm_norm_counts_treat = cpm_norm_counts[, colnames_treat]
+
+cpm_features_con = data.frame(quantile_0.75 = apply(cpm_norm_counts_con, 1, quantile, 0.75, na.rm = T))
+cpm_features_treat = data.frame(quantile_0.75 = apply(cpm_norm_counts_treat, 1, quantile, 0.75, na.rm = T))
+
+cpm_features_con$rule_cpm_0.75_above_1 = cpm_features_con$quantile_0.75 > 1
+cpm_features_treat$rule_cpm_0.75_above_1 = cpm_features_treat$quantile_0.75 > 1
+
+cpm_feature = 
+  data.frame(rule_cpm_0.75_above_1 = cpm_features_con$rule_cpm_0.75_above_1 | cpm_features_treat$rule_cpm_0.75_above_1, 
+             row.names = rownames(cpm_features_con))
 
 manual_degs_2 = res %>% 
   as.data.frame() %>% 
@@ -18,10 +37,6 @@ norm_counts_2 = norm_counts %>%
   as.data.frame() %>% 
   na.omit()
 
-colnames_con = subset(x = colnames(norm_counts), 
-                        grepl('ConDMSO', colnames(norm_counts)))
-colnames_treat = subset(x = colnames(norm_counts), 
-                        grepl('APA_The', colnames(norm_counts)))
 
 norm_counts_con = norm_counts_2[, grep('ConDMSO', colnames(norm_counts_2))]
 con_length = ncol(norm_counts_con)
@@ -50,7 +65,7 @@ apply_list_fns <- function(x, fns = c('mean', 'sd', 'var'), quantiles = NULL) {
 
 norm_counts_con_2 = norm_counts_con %>% 
   apply_list_fns(fns = c('mean', 'sd', 'var')) 
-  
+
 norm_counts_treat_2 = norm_counts_treat %>% 
   apply_list_fns(fns = c('mean', 'sd', 'var'))
 
@@ -162,15 +177,15 @@ colnames(norm_counts_treat_4)[!colnames(norm_counts_treat_4) %in% colnames_treat
   paste0(colnames(norm_counts_treat_4)[!colnames(norm_counts_treat_4) %in% colnames_treat], '_', 'APA_The')
 
 stopifnot(identical(rownames(norm_counts_con_4), rownames(norm_counts_treat_4)))
-  
+
 norm_counts_4 = norm_counts_con_4 %>% 
   cbind.data.frame(norm_counts_treat_4)
 
 raw_counts = norm_counts = DESeq2::counts(object = dds, normalized = F)
 cpm_counts = 
-
-norm_counts_features = norm_counts_4[, !grepl('ConDMSO_|APA_The_', 
-                                              colnames(norm_counts_4))]
+  
+  norm_counts_features = norm_counts_4[, !grepl('ConDMSO_|APA_The_', 
+                                                colnames(norm_counts_4))]
 
 dupl_cols = norm_counts_features %>% t %>% duplicated
 norm_counts_features = norm_counts_features[, !dupl_cols]
@@ -192,7 +207,7 @@ for (feature_name in feature_names) {
   norm_counts_feature = norm_counts_feature + pseudocount
   
   fold_change_feature = norm_counts_feature[, 2] / norm_counts_feature[, 1]
-
+  
   norm_counts_features[, paste0('foldchange_', feature_name)] = 
     fold_change_feature
 }
@@ -202,14 +217,20 @@ norm_counts_features$medianoverthirdquantile =
 norm_counts_features$medianbelowfirstquantile = 
   norm_counts_features['quantile_50%_APA_The'] < norm_counts_features['quantile_25%_ConDMSO']
 
+
+stopifnot(identical(rownames(norm_counts_features), rownames(cpm_feature)))
+
+norm_counts_features = cbind.data.frame(norm_counts_features, cpm_feature)
+
 norm_counts_features %>% saveRDS('data/apap_hecatos/norm_counts_features.rds')
+
 
 # norm_counts_treat_4 = norm_counts_treat_4[, !grepl('nonexpressed', colnames(norm_counts_treat_4))]
 
-colnames(norm_counts_con_4) =
-  colnames(norm_counts_con_4) %>%
-  gsub('_ConDMSO', '', .)
-colnames(norm_counts_treat_4) =
-  colnames(norm_counts_treat_4) %>%
-  gsub('_APA_The', '', .)
+# colnames(norm_counts_con_4) =
+#   colnames(norm_counts_con_4) %>%
+#   gsub('_ConDMSO', '', .)
+# colnames(norm_counts_treat_4) =
+#   colnames(norm_counts_treat_4) %>%
+#   gsub('_APA_The', '', .)
 
