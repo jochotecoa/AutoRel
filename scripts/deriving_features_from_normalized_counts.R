@@ -212,15 +212,35 @@ for (feature_name in feature_names) {
     fold_change_feature
 }
 
-norm_counts_features$medianoverthirdquantile = 
-  norm_counts_features['quantile_50%_APA_The'] > norm_counts_features['quantile_75%_ConDMSO']
-norm_counts_features$medianbelowfirstquantile = 
-  norm_counts_features['quantile_50%_APA_The'] < norm_counts_features['quantile_25%_ConDMSO']
+thirdquartile_rule = 
+  norm_counts_features['quantile_50%_APA_The'] > norm_counts_features['quantile_75%_ConDMSO'] | norm_counts_features['quantile_50%_APA_The'] < norm_counts_features['quantile_25%_ConDMSO']
+
+colnames(thirdquartile_rule) = 'thirdquartile_rule'
+
+norm_counts_features$thirdquartile_rule = thirdquartile_rule
 
 
 stopifnot(identical(rownames(norm_counts_features), rownames(cpm_feature)))
 
 norm_counts_features = cbind.data.frame(norm_counts_features, cpm_feature)
+
+spur_spike_filter = function(x) {
+  is.spike = function(x) {
+    n = length(x)
+    spike_thresh = 1.4*(n)^(-0.66) 
+    y = x > (spike_thresh*sum(x))
+    return(y)
+  }
+  y = apply(x, 1, is.spike)
+  y = t(y)
+  y = apply(y, 1, any)
+  return(y)
+}
+
+sprs_spks_con = norm_counts_con %>% spur_spike_filter
+sprs_spks_treat = norm_counts_treat %>% spur_spike_filter
+
+norm_counts_features$spurious_spikes = sprs_spks_con | sprs_spks_treat
 
 norm_counts_features %>% saveRDS('data/apap_hecatos/norm_counts_features.rds')
 

@@ -18,12 +18,6 @@ manual_res$log2FoldChange[is.na(manual_res$log2FoldChange)] = 0
 manual_res$lfcSE[is.na(manual_res$lfcSE)] = 1
 manual_res$stat[is.na(manual_res$stat)] = 0
 manual_res$pvalue[is.na(manual_res$pvalue)] = 1
-manual_res$padj[is.na(manual_res$pvalue)] = 1
+manual_res$padj[is.na(manual_res$padj)] = 1
 
-
-a = manual_res %>% 
-  dplyr::filter(pvalue > 0.1, baseMean > 1)
-
-a[which.min(a$pvalue), ]
-
-a = manual_res[is.na(manual_res$pvalue) & !is.na(manual_res$padj), ]
+manual_res$fdrlowerthan0.1 = manual_res$padj < 0.1

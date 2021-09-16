@@ -506,3 +506,19 @@ mergeFilesCsv = function(files_patt =  '.', by_col = 'Name',
   }
   return(big_quant_voom)
 } 
+
+hhead <- function(x) {
+  y = head(x)
+  if (!is.null(dim(x))) {
+    y = head(x[head(names(x))])
+  }
+  return(y)
+}
+
+ttail <- function(x) {
+  y = tail(x)
+  if (!is.null(dim(x))) {
+    y = tail(x[tail(names(x))])
+  }
+  return(y)
+}
