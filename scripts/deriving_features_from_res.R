@@ -20,4 +20,8 @@ manual_res$stat[is.na(manual_res$stat)] = 0
 manual_res$pvalue[is.na(manual_res$pvalue)] = 1
 manual_res$padj[is.na(manual_res$padj)] = 1
 
-manual_res$fdrlowerthan0.1 = manual_res$padj < 0.1
+manual_res$fdrlowerthan0.01 = manual_res$padj < 0.01
+
+manual_res = manual_res[, !grepl('fdrlowerthan0.1', colnames(manual_res))]
+
+manual_res %>% saveRDS(file = 'data/apap_hecatos/manual_res_apap_hecatos.rds')
