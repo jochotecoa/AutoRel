@@ -1,44 +1,75 @@
+forceLibrary('caret')
+
+
+
+X = deseq2_dataset[, -grep('significance', colnames(deseq2_dataset))] %>% 
+  as.data.frame() %>% 
+  column_to_rownames('ensembl_gene_id')
+Y = deseq2_dataset[, grep('significance', colnames(deseq2_dataset))]
+
+
+# Convert all logical variables to numerical
+X[sapply(X, is.logical)] = X[sapply(X, is.logical)] %>% sapply(as.numeric)
+
+# Over-sampling
+nonsign_rows = which(Y == 'nonsignificant')
+dub_rows = which(Y == 'dubious')
+sign_rows = which(Y == 'significant')
+
+dub_rows_over = sample(dub_rows, size = length(nonsign_rows), replace = T)
+sign_rows_over = sample(sign_rows, size = length(nonsign_rows), replace = T)
+
+X = X[c(nonsign_rows, dub_rows_over, sign_rows_over), , F]
+
+# Under-sampling
+nonsign_rows = which(Y == 'nonsignificant')
+dub_rows = which(Y == 'dubious')
+sign_rows = which(Y == 'significant')
+
+nonsign_rows_under = sample(nonsign_rows, size = length(dub_rows))
+sign_rows_under = sample(sign_rows, size = length(dub_rows))
+
+X = X[c(dub_rows, nonsign_rows_under, sign_rows_under), , F]
+
 # Pre-processing ----------------------------------------------------------
 # Zero- and Near Zero-Variance Predictors
-ncol(mrna_prot_df) - 1
-nzv_m <- nearZeroVar(mrna_prot_df, saveMetrics = T)
-nzv <- nearZeroVar(mrna_prot_df)
+ncol(X) 
+nzv_m <- nearZeroVar(X, saveMetrics = T)
+nzv <- nearZeroVar(X)
 nzv_m[nzv, ] %>% View()
 
 if (length(nzv) > 0) {
-  zv_colnames = colnames(mrna_prot_df)[nzv_m$zeroVar]
-  nzv_colnames = colnames(mrna_prot_df)[as.logical(nzv_m$nzv - nzv_m$zeroVar)]
+  zv_colnames = colnames(X)[nzv_m$zeroVar]
+  nzv_colnames = colnames(X)[as.logical(nzv_m$nzv - nzv_m$zeroVar)]
   nzv_m[nzv, ] %>% print()
   # warning(paste(paste0(zv_colnames, collapse = ', '), 'presented zero variance'))
   # warning(paste(paste0(nzv_colnames, collapse = ', '), 'presented near zero variance'))
-  mrna_prot_df <- mrna_prot_df[, -nzv]
+  X <- X[, -nzv]
 }
 
 # Creating Dummy Variables
-ncol(mrna_prot_df) - 1
-dummies <- dummyVars(" ~ .", data = mrna_prot_df)
-mrna_prot_df = predict(dummies, newdata = mrna_prot_df)
-mrna_prot_df = mrna_prot_df %>% as.data.frame()
-ncol(mrna_prot_df) - 1
+ncol(X) 
+dummies <- dummyVars(" ~ .", data = X)
+X = predict(dummies, newdata = X)
+X = X %>% as.data.frame()
+ncol(X) 
 
 # Zero- and Near Zero-Variance Predictors
-ncol(mrna_prot_df) - 1
-nzv_m <- nearZeroVar(mrna_prot_df, saveMetrics = T)
-nzv <- nearZeroVar(mrna_prot_df)
+ncol(X) - 1
+nzv_m <- nearZeroVar(X, saveMetrics = T)
+nzv <- nearZeroVar(X)
 nzv_m[nzv, ] %>% View()
 
 if (length(nzv) > 0) {
-  zv_colnames = colnames(mrna_prot_df)[nzv_m$zeroVar]
-  nzv_colnames = colnames(mrna_prot_df)[as.logical(nzv_m$nzv - nzv_m$zeroVar)]
+  zv_colnames = colnames(X)[nzv_m$zeroVar]
+  nzv_colnames = colnames(X)[as.logical(nzv_m$nzv - nzv_m$zeroVar)]
   nzv_m[nzv, ] %>% print()
   # warning(paste(paste0(zv_colnames, collapse = ', '), 'presented zero variance'))
   # warning(paste(paste0(nzv_colnames, collapse = ', '), 'presented near zero variance'))
-  mrna_prot_df <- mrna_prot_df[, -nzv]
+  X <- X[, -nzv]
 }
 
 
-X = mrna_prot_df[, -grep('proteomics', colnames(mrna_prot_df))] %>% as.data.frame()
-Y = mrna_prot_df[, grep('proteomics', colnames(mrna_prot_df))]
 
 
 # Identifying Correlated Predictors
@@ -69,9 +100,9 @@ ncol(X)
 # Data splitting ----------------------------------------------------------
 
 
-mrna_prot_df_na_omit = cbind.data.frame(X, Y) %>% 
+X_na_omit = cbind.data.frame(X, Y) %>% 
   na.omit()
-colnames(mrna_prot_df_na_omit)[ncol(mrna_prot_df_na_omit)] = 'proteomics_value'
+colnames(X_na_omit)[ncol(X_na_omit)] = 'proteomics_value'
 
 normalization <- preProcess(X, verbose = T, method = c("center", "scale", "knnImpute"))
 X <- predict(normalization, X) %>%
