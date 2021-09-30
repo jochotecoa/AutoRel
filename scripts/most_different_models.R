@@ -21,7 +21,7 @@ nextMods <- maxDissim(classModels[start,,drop = FALSE],
 rownames(classModels)[c(start, nextMods)]
 
 [1] "Random Forest (rf)"
-[2] "Linear Distance Weighted Discrimination (dwdLinear)"
+[2] "Linear Distance Weighted Discrimination (dwdLinear)" (only 2 classes)
 [3] "Bagged CART (treebag)"
 [4] "Patient Rule Induction Method (PRIM)"
 [5] "CART (rpart2)"

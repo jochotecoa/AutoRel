@@ -1,11 +1,11 @@
 # load the library
-source('script/functions/functions_JOA.R')
+source('scripts/functions/functions_JOA.R')
 forceLibrary(c('mlbench', 'caret', 'doMC', 'dplyr', 'RANN'))
 
-registerDoMC(24)
+registerDoMC(1)
 
 # load the data
-file_X = 'data/apap_hecatos/whole_data_centered_scaled_preds.rds'
+file_X = 'data/apap_hecatos/whole_data_preds.rds'
 file_Y = 'data/apap_hecatos/whole_data_target.rds'
 
 X = readRDS(file = file_X)
