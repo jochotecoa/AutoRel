@@ -1,5 +1,5 @@
 # source('script/recursive_feature_elimination/load_data_treebage.R')
-
+forceLibrary(c('ipred', 'plyr', 'e1071')) # Needed for bagged trees
 
 apap_data = cbind.data.frame(X, Y) 
 colnames(apap_data)[ncol(apap_data)] = 'significance'
@@ -41,7 +41,7 @@ if (!dir.exists('output/confusion_matrices/apap_21vs21/treebag/')) {
   dir.create('output/confusion_matrices/apap_21vs21/treebag/', recursive = T)
 }
 
-cm_over %>% saveRDS('output/confusion_matrices/apap_21vs21/treebag/over-sampling.rds')
+# cm_over %>% saveRDS('output/confusion_matrices/apap_21vs21/treebag/over-sampling.rds')
 cm_original %>% saveRDS('output/confusion_matrices/apap_21vs21/treebag/original.rds')
-cm_under %>% saveRDS('output/confusion_matrices/apap_21vs21/treebag/under-sampling.rds')
+# cm_under %>% saveRDS('output/confusion_matrices/apap_21vs21/treebag/under-sampling.rds')
 
