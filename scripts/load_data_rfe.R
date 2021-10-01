@@ -2,7 +2,7 @@
 source('scripts/functions/functions_JOA.R')
 forceLibrary(c('mlbench', 'caret', 'doMC', 'dplyr', 'RANN'))
 
-registerDoMC(1)
+registerDoMC(5)
 
 # load the data
 file_X = 'data/apap_hecatos/whole_data_preds.rds'
