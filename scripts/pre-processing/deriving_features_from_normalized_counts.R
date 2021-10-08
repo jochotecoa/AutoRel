@@ -2,9 +2,11 @@ source('scripts/functions/functions_JOA.R')
 forceLibrary(c('biomaRt', "tximport", "dplyr", "DESeq2", "grid", "ggplot2", 
                "pheatmap", "BiocParallel", 'tibble', 'edgeR'))
 
-res = readRDS(file = 'data/apap_hecatos/results_dds_deseq2_apap_hecatos.rds')
+# res = readRDS(file = 'data/apap_hecatos/results_dds_deseq2_apap_hecatos.rds')
 
-manual_degs = readRDS(file = 'data/apap_hecatos/manual_degs_apap_hecatos.rds')
+# manual_degs = readRDS(file = 'data/apap_hecatos/manual_degs_apap_hecatos.rds')
+
+norm_counts = 'data/apap_hecatos/norm_counts_deseq2_apap_hecatos.rds' %>% readRDS
 
 colnames_con = subset(x = colnames(norm_counts), 
                       grepl('ConDMSO', colnames(norm_counts)))
@@ -26,12 +28,12 @@ cpm_feature =
   data.frame(rule_cpm_0.75_above_1 = cpm_features_con$rule_cpm_0.75_above_1 | cpm_features_treat$rule_cpm_0.75_above_1, 
              row.names = rownames(cpm_features_con))
 
-manual_degs_2 = res %>% 
-  as.data.frame() %>% 
-  rownames_to_column('ensembl_gene_id') %>% 
-  merge.data.frame(x = ., y = manual_degs, by = 'ensembl_gene_id', all.y = T)
-
-manual_degs_2$padj[is.na(manual_degs_2$padj)] = 1
+# manual_degs_2 = res %>% 
+#   as.data.frame() %>% 
+#   rownames_to_column('ensembl_gene_id') %>% 
+#   merge.data.frame(x = ., y = manual_degs, by = 'ensembl_gene_id', all.y = T)
+# 
+# manual_degs_2$padj[is.na(manual_degs_2$padj)] = 1
 
 norm_counts_2 = norm_counts %>% 
   as.data.frame() %>% 

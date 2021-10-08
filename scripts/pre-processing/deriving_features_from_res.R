@@ -22,6 +22,18 @@ manual_res$padj[is.na(manual_res$padj)] = 1
 
 manual_res$fdrlowerthan0.01 = manual_res$padj < 0.01
 
-manual_res = manual_res[, !grepl('fdrlowerthan0.1', colnames(manual_res))]
+# manual_res = manual_res[, !grepl('fdrlowerthan0.1', colnames(manual_res))]
 
 manual_res %>% saveRDS(file = 'data/apap_hecatos/manual_res_apap_hecatos.rds')
+
+all_res = res_df
+
+all_res$log2FoldChange[is.na(all_res$log2FoldChange)] = 0
+all_res$lfcSE[is.na(all_res$lfcSE)] = 1
+all_res$stat[is.na(all_res$stat)] = 0
+all_res$pvalue[is.na(all_res$pvalue)] = 1
+all_res$padj[is.na(all_res$padj)] = 1
+
+all_res$fdrlowerthan0.01 = all_res$padj < 0.01
+
+all_res %>% saveRDS(file = 'data/apap_hecatos/all_res_apap_hecatos.rds')

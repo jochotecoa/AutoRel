@@ -31,10 +31,7 @@ model_bam %>% saveRDS('output/trained_models/apap_21vs21/bam/original.rds')
 
 
 final <- data.frame(actual = test_data$significance,
-                    predict(model_bam, newdata = test_data, type = "prob"))
-final$predict = final[-1] %>% apply(1, which.max)
-final$predict = names(final)[-1][final$predict]
-final$predict = final$predict %>% as.factor()
+                    predict = predict(model_bam, newdata = test_data))
 
 cm_original <- confusionMatrix(final$predict, test_data$significance)
 
