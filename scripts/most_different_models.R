@@ -16,9 +16,9 @@ pool <- all[all != start]
 nextMods <- maxDissim(classModels[start,,drop = FALSE], 
                       classModels[pool, ], 
                       method = "Jaccard",
-                      n = 20)
+                      n = 17)
 
-rownames(classModels)[c(start, nextMods)]
+mod_10 = rownames(classModels)[c(start, nextMods)][c(1,2,5, 7:11, 16:17)]
 
 [1] "Random Forest (rf)"
 [2] "Penalized Multinomial Regression (multinom)"
