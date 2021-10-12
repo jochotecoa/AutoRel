@@ -24,28 +24,51 @@ unlabelled_data_predictions = data.frame(
   significance = predict(model_rpart2, newdata = deseq2_nonlablld_dataset)
   )
 
+unlabelled_data_predictions_probs = data.frame(
+  row.names = row.names(deseq2_nonlablld_dataset),
+  significance = predict(model_rpart2, newdata = deseq2_nonlablld_dataset, 
+                         type = "prob")
+)
+
+
 norm_counts = 'data/apap_hecatos/norm_counts_deseq2_apap_hecatos.rds' %>% readRDS
 
 unlabelled_norm_counts = merge(x = rownames_to_column(unlabelled_data_predictions), 
                                y = rownames_to_column(as.data.frame(norm_counts)), by = 'rowname') %>% 
   column_to_rownames()
 
+unlabelled_norm_counts = merge(x = rownames_to_column(unlabelled_norm_counts), 
+                               y = rownames_to_column(unlabelled_data_predictions_probs), by = 'rowname') %>% 
+  column_to_rownames()
+
+
 saveRDS(object = unlabelled_norm_counts, 
         file = 'output/data/apap/newdata_predicted_norm_counts_21v21.rds')
 
-for (rownaam in rownames(unlabelled_norm_counts)) { # [rownaam_i:rownaam_f]
+unlabelled_norm_counts = readRDS('output/data/apap/newdata_predicted_norm_counts_21v21.rds')
+
+
+for (rownaam in rownames(unlabelled_norm_counts)[grep('ENSG00000049323', rownames(unlabelled_norm_counts)):nrow(unlabelled_norm_counts)]) { # [rownaam_i:rownaam_f]
   
-  predctn = unlabelled_norm_counts[rownaam, 'significance'] 
+  unlabelled_norm_counts_i = unlabelled_norm_counts[rownaam, ]
+  
+  predctn = unlabelled_norm_counts_i['significance'] %>% unlist()
   
   contr_cols = grep('ConDMSO', colnames(unlabelled_norm_counts))
   treatm_cols = grep('APA_The', colnames(unlabelled_norm_counts))
   
-  unlabelled_norm_counts[rownaam, c(contr_cols, treatm_cols)] %>% 
+  prob_dub_i = unlabelled_norm_counts_i$significance.dubious
+  prob_non_i = unlabelled_norm_counts_i$significance.nonsignificant
+  prob_sig_i = unlabelled_norm_counts_i$significance.significant
+  
+  unlabelled_norm_counts_i[c(contr_cols, treatm_cols)] %>% 
     as.numeric() %>% 
     barplot(las  =2, 
+            names.arg = colnames(unlabelled_norm_counts)[c(contr_cols, treatm_cols)], 
             col = c(rep('gray', length(contr_cols)), 
                     rep('pink', length(treatm_cols))), 
-            main = paste0(rownaam, '; predicted = ', predctn))
+            main = paste0(rownaam, '; predicted = ', predctn, 
+                          paste(' ; dub =', prob_dub_i, '; non =', prob_non_i, '; sig =', prob_sig_i)))
   print(rownaam)
   readline(prompt = "Press [enter] to continue")
 }
