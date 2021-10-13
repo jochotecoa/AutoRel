@@ -6,7 +6,7 @@ res = readRDS(file = 'data/apap_hecatos/results_dds_deseq2_apap_hecatos.rds')
 
 res_df = res %>% as.data.frame()
 
-manual_degs = readRDS(file = 'data/apap_hecatos/manual_degs_apap_hecatos.rds')
+manual_degs = readRDS(file = 'data/apap_hecatos/manual_degs_apap_hecatos_v2.rds')
 
 stopifnot(all(manual_degs$ensembl_gene_id %in% rownames(res_df)))
 
