@@ -4,6 +4,9 @@ forceLibrary(c('rpart')) # Needed for bagged trees
 
 registerDoMC(5)
 
+
+source('scripts/pre-processing/merge_countfeats_with_statfeats_newdata_unlabelled.R')
+
 deseq2_nonlablld_dataset = readRDS('data/apap_hecatos/deseq2_nonlablld_dataset.rds')
 deseq2_nonlablld_dataset = deseq2_nonlablld_dataset %>% 
   column_to_rownames('ensembl_gene_id')
@@ -47,50 +50,56 @@ saveRDS(object = predicted_new_data_norm_counts,
 
 predicted_new_data_norm_counts = readRDS('output/data/apap/newdata_predicted_norm_counts_21v21.rds')
 
+predicted_new_data_norm_counts =  
+  merge(x = rownames_to_column(predicted_new_data_norm_counts), 
+        y = rownames_to_column(deseq2_nonlablld_dataset['padj']), by = 'rowname') %>% 
+  column_to_rownames
 
-for (rownaam in rownames(predicted_new_data_norm_counts)[grep('ENSG00000054277', rownames(predicted_new_data_norm_counts)):nrow(predicted_new_data_norm_counts)]) { # [rownaam_i:rownaam_f]
-  
+for (rownaam in rownames(predicted_new_data_norm_counts)[order(predicted_new_data_norm_counts$padj)]){ #[grep('ENSG00000054277', rownames(predicted_new_data_norm_counts)):nrow(predicted_new_data_norm_counts)]) { # [rownaam_i:rownaam_f]
+
   predicted_new_data_norm_counts_i = predicted_new_data_norm_counts[rownaam, ]
-  
+
   predctn = predicted_new_data_norm_counts_i['significance'] %>% unlist()
+  padj = predicted_new_data_norm_counts_i['padj'] %>% unlist()
   
+
   contr_cols = grep('ConDMSO', colnames(predicted_new_data_norm_counts))
   treatm_cols = grep('APA_The', colnames(predicted_new_data_norm_counts))
-  
+
   prob_dub_i = predicted_new_data_norm_counts_i$significance.dubious
   prob_non_i = predicted_new_data_norm_counts_i$significance.nonsignificant
   prob_sig_i = predicted_new_data_norm_counts_i$significance.significant
-  
+
   par(mfrow = c(1,2))
-  
-  predicted_new_data_norm_counts_i[c(contr_cols, treatm_cols)] %>% 
-    as.numeric() %>% 
-    barplot(las  =2, 
-            names.arg = colnames(predicted_new_data_norm_counts)[c(contr_cols, treatm_cols)], 
-            col = c(rep('gray', length(contr_cols)), 
-                    rep('pink', length(treatm_cols))), 
-            main = paste0(rownaam, '; predicted = ', predctn, 
-                          paste(' ; dub =', prob_dub_i, '; non =', prob_non_i, '; sig =', prob_sig_i)))
+
+  predicted_new_data_norm_counts_i[c(contr_cols, treatm_cols)] %>%
+    as.numeric() %>%
+    barplot(las  =2,
+            names.arg = colnames(predicted_new_data_norm_counts)[c(contr_cols, treatm_cols)],
+            col = c(rep('gray', length(contr_cols)),
+                    rep('pink', length(treatm_cols))),
+            main = paste0(rownaam, '; predicted = ', predctn, '; padj = '), 
+            sub = paste(' ; dub =', prob_dub_i, '; non =', prob_non_i, '; sig =', prob_sig_i))
   print(rownaam)
-  
-  data_bxplt = predicted_new_data_norm_counts_i[c(contr_cols, treatm_cols)] %>% 
-    as.data.frame() %>% 
-    t %>% 
+
+  data_bxplt = predicted_new_data_norm_counts_i[c(contr_cols, treatm_cols)] %>%
+    as.data.frame() %>%
+    t %>%
     cbind(c(rep('ConDMSO', length(contr_cols)), rep('APA_The', length(treatm_cols))))
-  data_bxplt = data.frame(ConDMSO = unlist(data_bxplt[grep('ConDMSO', rownames(data_bxplt)), 1]), 
-                          APA_The = unlist(data_bxplt[grep('APA_The', rownames(data_bxplt)), 1])) %>% 
+  data_bxplt = data.frame(ConDMSO = unlist(data_bxplt[grep('ConDMSO', rownames(data_bxplt)), 1]),
+                          APA_The = unlist(data_bxplt[grep('APA_The', rownames(data_bxplt)), 1])) %>%
     apply(2, as.numeric)
-  
-  boxplot(x = data_bxplt, 
-          ylab = 'normalized_counts', 
-          main = paste0(rownaam, '; predicted = ', predctn, 
-                        paste(' ; dub =', prob_dub_i, '; non =', prob_non_i, '; 
+
+  boxplot(x = data_bxplt,
+          ylab = 'normalized_counts',
+          main = paste0(rownaam, '; predicted = ', predctn,
+                        paste(' ; dub =', prob_dub_i, '; non =', prob_non_i, ';
                               sig =', prob_sig_i)), col = c('gray', 'pink'))
-  
-  
-  
-  
-  
+
+
+
+
+
   readline(prompt = "Press [enter] to continue")
 }
 
@@ -116,5 +125,7 @@ manual_degs = readRDS(file = 'data/apap_hecatos/manual_degs_apap_hecatos.rds')
 
 new_manual_degs = rbind(manual_degs, semipredicted_new_data)
 
-new_manual_degs %>% saveRDS(file = 'data/apap_hecatos/manual_degs_apap_hecatos_v2.rds')
+stopifnot(nrow(new_manual_degs) == nrow(unique(new_manual_degs)))
+
+new_manual_degs %>% saveRDS(file = 'data/apap_hecatos/manual_degs_apap_hecatos.rds')
 

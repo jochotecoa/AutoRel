@@ -6,11 +6,14 @@ forceLibrary('caret')
 
 deseq2_dataset = readRDS(file = 'data/apap_hecatos/deseq2_dataset.rds')
 
+deseq2_dataset = deseq2_dataset[deseq2_dataset$baseMean > 0, ]
+
 colnames(deseq2_dataset) = colnames(deseq2_dataset) %>% 
   make.names()
 
 X = deseq2_dataset[, -grep('significance', colnames(deseq2_dataset))] %>% 
   as.data.frame() %>% 
+  remove_rownames %>% 
   column_to_rownames('ensembl_gene_id')
 Y = deseq2_dataset[, grep('significance', colnames(deseq2_dataset))]
 
@@ -42,8 +45,8 @@ X_under = X[c(dub_rows, nonsign_rows_under, sign_rows_under), , F]
 # Zero- and Near Zero-Variance Predictors
 ncol(X) 
 
-freqCut = sum(Y == 'nonsignificant')/sum(Y != 'nonsignificant')
-nzv_m_under <- nearZeroVar(X_under, saveMetrics = T, freqCut = freqCut)
+# freqCut = sum(Y == 'nonsignificant')/sum(Y != 'nonsignificant')
+nzv_m_under <- nearZeroVar(X_under, saveMetrics = T)
 nzv_feats = rownames(nzv_m_under[nzv_m_under$nzv, ])
 
 
@@ -51,6 +54,8 @@ if (length(nzv_feats) > 0) {
   
   print(paste('Predictors with NZV:', nzv_feats, collapse = ' '))
   X <- X[, !(colnames(X) %in% nzv_feats)]
+  X_under <- X_under[, !(colnames(X_under) %in% nzv_feats)]
+  
 }
 
 # Identifying Correlated Predictors ---------------------------------------
@@ -58,12 +63,13 @@ if (length(nzv_feats) > 0) {
 
 ncol(X)
 
-descrCor <- cor(na.omit(X))
+descrCor <- cor(na.omit(X_under))
 highlyCor <- findCorrelation(descrCor, cutoff = .99)
 
 corrplot::corrplot(descrCor[-highlyCor, highlyCor])
 if (length(highlyCor) > 0) {
   X <- X[,-highlyCor]
+  X_under <- X_under[,-highlyCor]
 }
 
 
