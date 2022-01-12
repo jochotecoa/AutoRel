@@ -59,6 +59,8 @@ saveRDS(object = res, file = 'data/apap_hecatos/results_dds_deseq2_apap_hecatos.
 
 # Putting final results toguether -----------------------------------------
 
+res2 = res[!is.na(res$padj), ]
+
 manual_annot = read.csv('data/apap_hecatos_manual_significant.csv')
 manual_annot$significance = gsub(pattern = 'T', replacement = 'significant', x = manual_annot$significance)
 manual_annot$significance = gsub(pattern = 'F', replacement = 'nonsignificant', x = manual_annot$significance)

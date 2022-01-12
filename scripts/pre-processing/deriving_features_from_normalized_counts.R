@@ -14,6 +14,9 @@ colnames_treat = subset(x = colnames(norm_counts),
                         grepl('APA_The', colnames(norm_counts)))
 
 
+# CPM rule ----------------------------------------------------------------
+
+
 cpm_norm_counts = cpm(norm_counts) %>% as.data.frame()
 cpm_norm_counts_con = cpm_norm_counts[, colnames_con]
 cpm_norm_counts_treat = cpm_norm_counts[, colnames_treat]
@@ -46,6 +49,9 @@ norm_counts_treat = norm_counts_2[, grep('APA_The', colnames(norm_counts_2))]
 treat_length = ncol(norm_counts_treat)
 
 
+# Mean, SD, and Var -------------------------------------------------------
+
+
 apply_list_fns <- function(x, fns = c('mean', 'sd', 'var'), quantiles = NULL) {
   for (fns_i in fns) {
     fns_i_chr = fns_i
@@ -71,6 +77,9 @@ norm_counts_con_2 = norm_counts_con %>%
 norm_counts_treat_2 = norm_counts_treat %>% 
   apply_list_fns(fns = c('mean', 'sd', 'var'))
 
+# Quantiles ---------------------------------------------------------------
+
+
 norm_counts_con_quantiles = norm_counts_con %>% 
   apply(1, quantile, seq(0, 1, 0.05)) %>% 
   t()
@@ -92,6 +101,9 @@ norm_counts_con_2 = norm_counts_con_2 %>%
   cbind.data.frame(norm_counts_con_quantiles)
 norm_counts_treat_2 = norm_counts_treat_2 %>% 
   cbind.data.frame(norm_counts_treat_quantiles)
+
+# Feature the median of each 1/10th of the samples ------------------------
+
 
 subsample_median <- function(x, num_var, portions) {
   prev_port = 0
@@ -116,6 +128,9 @@ norm_counts_con_3 = norm_counts_con_2 %>%
 norm_counts_treat_3 = norm_counts_treat_2 %>% 
   subsample_median(num_var = con_length, portions = 10)
 
+# Count NA observations ---------------------------------------------------
+
+
 norm_counts_con_4 = norm_counts_con_3
 norm_counts_treat_4 = norm_counts_treat_3
 
@@ -139,6 +154,9 @@ norm_counts_treat_4$N_nonexpressed_samples =
   apply(1, zeroCount)
 norm_counts_treat_4$Proportion_nonexpressed_samples = 
   norm_counts_treat_4$N_nonexpressed_samples / treat_length
+
+# Count outliers ----------------------------------------------------------
+
 
 countOutliers <- function(x, na.rm = T, ...) {
   y = outlier(x, na.rm = na.rm, ...)
@@ -185,7 +203,6 @@ norm_counts_4 = norm_counts_con_4 %>%
 
 raw_counts = norm_counts = DESeq2::counts(object = dds, normalized = F)
 cpm_counts = 
-  
   norm_counts_features = norm_counts_4[, !grepl('ConDMSO_|APA_The_', 
                                                 colnames(norm_counts_4))]
 
@@ -214,17 +231,51 @@ for (feature_name in feature_names) {
     fold_change_feature
 }
 
+# Third Quartile Rule -----------------------------------------------------
+
+
 thirdquartile_rule = 
-  norm_counts_features['quantile_50%_APA_The'] > norm_counts_features['quantile_75%_ConDMSO'] | norm_counts_features['quantile_50%_APA_The'] < norm_counts_features['quantile_25%_ConDMSO']
+  norm_counts_features['quantile_50%_APA_The'] > norm_counts_features['quantile_75%_ConDMSO'] | norm_counts_features['quantile_50%_APA_The'] < norm_counts_features['quantile_25%_ConDMSO'] | norm_counts_features['quantile_50%_ConDMSO'] > norm_counts_features['quantile_75%_APA_The'] | norm_counts_features['quantile_50%_ConDMSO'] < norm_counts_features['quantile_25%_APA_The']
 
 colnames(thirdquartile_rule) = 'thirdquartile_rule'
 
 norm_counts_features$thirdquartile_rule = thirdquartile_rule
 
+q1belmin = norm_counts_features['quantile_25%_ConDMSO'] < norm_counts_features['quantile_0%_APA_The']
+q2belq1 = norm_counts_features['quantile_50%_ConDMSO'] < norm_counts_features['quantile_25%_APA_The']
+q3belq2 = norm_counts_features['quantile_75%_ConDMSO'] < norm_counts_features['quantile_50%_APA_The']
+maxbelq3 = norm_counts_features['quantile_100%_ConDMSO'] < norm_counts_features['quantile_75%_APA_The']
+minavoq1 = norm_counts_features['quantile_0%_ConDMSO'] > norm_counts_features['quantile_25%_APA_The']
+q1avoq2 = norm_counts_features['quantile_25%_ConDMSO'] > norm_counts_features['quantile_50%_APA_The']
+q2avoq3 = norm_counts_features['quantile_50%_ConDMSO'] > norm_counts_features['quantile_75%_APA_The']
+q3avomax = norm_counts_features['quantile_75%_ConDMSO'] > norm_counts_features['quantile_100%_APA_The']
+
+
+thirdquartile_rule = as.logical(q1belmin + q2belq1 + q3belq2 + maxbelq3 + 
+                       minavoq1 + q1avoq2 + q2avoq3 + q3avomax)
+
+
+thirdfirstquartile_rule = 
+  norm_counts_features['quantile_25%_APA_The'] > norm_counts_features['quantile_75%_ConDMSO'] | norm_counts_features['quantile_75%_APA_The'] < norm_counts_features['quantile_25%_ConDMSO']
+
+colnames(thirdfirstquartile_rule) = 'thirdfirstquartile_rule'
+
+norm_counts_features$thirdfirstquartile_rule = thirdfirstquartile_rule
+
+maxmin_rule = 
+  norm_counts_features['quantile_0%_APA_The'] > norm_counts_features['quantile_100%_ConDMSO'] | norm_counts_features['quantile_100%_APA_The'] < norm_counts_features['quantile_0%_ConDMSO']
+
+colnames(maxmin_rule) = 'maxmin_rule'
+
+norm_counts_features$maxmin_rule = maxmin_rule
+
 
 stopifnot(identical(rownames(norm_counts_features), rownames(cpm_feature)))
 
 norm_counts_features = cbind.data.frame(norm_counts_features, cpm_feature)
+
+# Spurious Spike Filter ---------------------------------------------------
+
 
 spur_spike_filter = function(x) {
   is.spike = function(x) {
