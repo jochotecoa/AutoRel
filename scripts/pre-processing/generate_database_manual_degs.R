@@ -88,11 +88,19 @@ degs_0.05 = degs_0.05[1:grep("ENSG00000134115", rownames(degs_0.05)), ] %>%
 na_non_degs = deseq2_features_all[is.na(deseq2_features_all$padj),] %>% 
   rownames()
 
+# Quantile difference rules -----------------------------------------------
+
+
 threeqd = deseq2_features_all %>% 
   column_to_rownames('ensembl_gene_id') %>%  
   dplyr::filter(threequartilediff_rule == T) %>% 
   row.names()
 
+oneqd = deseq2_features_all %>% 
+  column_to_rownames('ensembl_gene_id') %>%  
+  dplyr::filter(onequartilediff_rule == F, 
+                padj < 0.2) %>% 
+  row.names()
 
 
 # Combine together --------------------------------------------------------
@@ -108,6 +116,8 @@ manual_degs[manual_degs$ensembl_gene_id %in% non_degs_0.1_0.05, 'significance'] 
 manual_degs[manual_degs$ensembl_gene_id %in% non_degs_0.05, 'significance'] = 'nonsignificant'
 manual_degs[manual_degs$ensembl_gene_id %in% degs_0.05, 'significance'] = 'significant'
 manual_degs[manual_degs$ensembl_gene_id %in% threeqd, 'significance'] = 'significant' 
+manual_degs[manual_degs$ensembl_gene_id %in% oneqd, 'significance'] = 'nonsignificant' 
+
 old_nrow = nrow(manual_degs)
 manual_degs = manual_degs %>% 
   merge.data.frame(y = manual_annot, by = 'ensembl_gene_id', all = T)

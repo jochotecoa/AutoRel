@@ -13,7 +13,7 @@ deseq2_dataset =
   readRDS(file = 'data/apap_hecatos/deseq2_dataset.rds')
 
 deseq2_features_subsetted = deseq2_nonlablld_dataset %>% 
-  dplyr::filter(threequartilediff_rule == T) 
+  dplyr::filter(onequartilediff_rule == F) 
 
 
 # Barplotting -------------------------------------------------------------
@@ -33,11 +33,11 @@ gene_ids = deseq2_features_subsetted["ensembl_gene_id"] %>%
   unlist()
 # gene_ids = res2[order(res2$padj, decreasing = T),] %>% rownames()
 
-gene_id_i = grep("ENSG00000231043", gene_ids)
+gene_id_i = grep("ENSG00000266472", gene_ids)
 gene_id_f = length(gene_ids)
 
 
-for (gene_id in gene_ids) { # [gene_id_i:gene_id_f]
+for (gene_id in gene_ids[gene_id_i:gene_id_f]) { # [gene_id_i:gene_id_f]
   
   padjv = res2[gene_id, 'padj'] 
   
@@ -49,45 +49,17 @@ for (gene_id in gene_ids) { # [gene_id_i:gene_id_f]
     barplot(las  =2, 
             col = c(rep('gray', ncol(cts_control)), 
                     rep('pink', ncol(cts_treatment))), 
-            main = paste0(gene_id, '; padj = ', padjv, '; ', tq_rule))
+            main = paste0(gene_id, '; padj = ', padjv))
   print(gene_id)
   readline(prompt = "Press [enter] to continue")
 }
 
-for (gene_id in gene_ids) { # [gene_id_i:gene_id_f]
+for (gene_id in gene_ids[gene_id_i:gene_id_f]) { # [gene_id_i:gene_id_f]
   
   padjv = res2[gene_id, 'padj'] 
   
   contr_cols = grep('ConDMSO', colnames(norm_counts))
   treatm_cols = grep('APA_The', colnames(norm_counts))
-  
-  median_contr = median(norm_counts[gene_id, contr_cols])
-  median_treatm = median(norm_counts[gene_id, treatm_cols])
-  quant1_contr = quantile(norm_counts[gene_id, contr_cols], 0.25)
-  quant3_contr = quantile(norm_counts[gene_id, contr_cols], 0.75)
-  quant1_treatm = quantile(norm_counts[gene_id, treatm_cols], 0.25)
-  quant3_treatm = quantile(norm_counts[gene_id, treatm_cols], 0.75)
-  min_contr = min(norm_counts[gene_id, contr_cols])
-  min_treatm = min(norm_counts[gene_id, treatm_cols])
-  max_contr = max(norm_counts[gene_id, contr_cols])
-  max_treatm = max(norm_counts[gene_id, treatm_cols])
-  
-  q1belmin = quant1_contr < min_treatm
-  q2belq1 = median_contr < quant1_treatm
-  q3belq2 = quant3_contr < median_treatm
-  maxbelq3 = max_contr < quant3_treatm
-  minavoq1 = min_contr > quant1_treatm
-  q1avoq2 = quant1_contr > median_treatm
-  q2avoq3 = median_contr > quant3_treatm
-  q3avomax = quant3_contr > max_treatm
-  
-  
-  tq_rule = as.logical(q1belmin + q2belq1 + q3belq2 + maxbelq3 + 
-                         minavoq1 + q1avoq2 + q2avoq3 + q3avomax)
-  
-  if (tq_rule) {
-    next
-  }
   
   data_bxplt = norm_counts[gene_id, ] %>% 
     as.data.frame() %>% 
