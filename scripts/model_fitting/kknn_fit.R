@@ -22,9 +22,10 @@ model_kknn <- caret::train(significance ~ .,
                              data = train_data,
                              method = "kknn",
                              preProcess = c("scale", "center"),
-                             trControl = trainControl(method = "cv", 
-                                                      allowParallel = T, 
-                                                      verboseIter = TRUE))
+                           trControl = trainControl(method = "repeatedcv", 
+                                                    allowParallel = T, 
+                                                    verboseIter = TRUE, 
+                                                    repeats = 10))
 
 if (!dir.exists('output/trained_models/apap_21vs21/kknn/')) {
   dir.create('output/trained_models/apap_21vs21/kknn/', recursive = T)
@@ -34,7 +35,8 @@ model_kknn %>% saveRDS('output/trained_models/apap_21vs21/kknn/original.rds')
 
 
 final <- data.frame(actual = test_data$significance,
-                    predict = predict(model_kknn, newdata = test_data))
+                    predict = predict(model_kknn, newdata = test_data), 
+                    row.names = row.names(test_data))
 
 cm_original <- confusionMatrix(final$predict, test_data$significance)
 

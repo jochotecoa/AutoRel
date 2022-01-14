@@ -29,11 +29,17 @@ cts_treatment = norm_counts %>%
   dplyr::select(contains('APA_The'))
 
 
+
+
 gene_ids = deseq2_features_subsetted["ensembl_gene_id"] %>% 
   unlist()
+
+gene_ids = final[final$actual != final$predict,] %>% 
+  rownames()
+
 # gene_ids = res2[order(res2$padj, decreasing = T),] %>% rownames()
 
-gene_id_i = grep("ENSG00000266472", gene_ids)
+gene_id_i = grep("ENSG00000156869", gene_ids)
 gene_id_f = length(gene_ids)
 
 
@@ -49,7 +55,9 @@ for (gene_id in gene_ids[gene_id_i:gene_id_f]) { # [gene_id_i:gene_id_f]
     barplot(las  =2, 
             col = c(rep('gray', ncol(cts_control)), 
                     rep('pink', ncol(cts_treatment))), 
-            main = paste0(gene_id, '; padj = ', padjv))
+            main = paste0(gene_id, '; padj = ', padjv, 
+                          ' actual: ', final[gene_id, 'actual'], 
+                          ' predicted: ', final[gene_id, 'predict']))
   print(gene_id)
   readline(prompt = "Press [enter] to continue")
 }

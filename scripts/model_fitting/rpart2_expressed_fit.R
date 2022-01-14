@@ -21,9 +21,9 @@ apap_data = 'data/apap_hecatos/whole_dataset_labelled.rds' %>%
 apap_data_expressed = apap_data[apap_data$baseMean > 0, ]
 
 
-index <- createDataPartition(apap_data_expressed$significance, p = 0.75, list = FALSE)
-train_data <- apap_data_expressed[index, ]
-test_data  <- apap_data_expressed[-index, ]
+index <- createDataPartition(apap_data$significance, p = 0.75, list = FALSE)
+train_data <- apap_data[index, ]
+test_data  <- apap_data[-index, ]
 
 # colnames(train_data) = colnames(train_data) %>% 
 #   make.names()
@@ -39,9 +39,10 @@ model_rpart2 <- caret::train(significance ~ .,
                              data = train_data,
                              method = "rpart2",
                              preProcess = c("scale", "center"),
-                             trControl = trainControl(method = "cv", 
+                             trControl = trainControl(method = "repeatedcv", 
                                                       allowParallel = T, 
-                                                      verboseIter = TRUE))
+                                                      verboseIter = TRUE, 
+                                                      repeats = 10))
 
 if (!dir.exists('output/trained_models/apap_21vs21/rpart2/')) {
   dir.create('output/trained_models/apap_21vs21/rpart2/', recursive = T)
@@ -50,11 +51,14 @@ if (!dir.exists('output/trained_models/apap_21vs21/rpart2/')) {
 model_rpart2 %>% saveRDS('output/trained_models/apap_21vs21/rpart2/original_expressed.rds')
 
 
+# final <- data.frame(actual = test_data$significance,
+#                     predict(model_rpart2, newdata = test_data, type = "prob"))
+# final$predict = final[-1] %>% apply(1, which.max)
+# final$predict = names(final)[-1][final$predict]
+# final$predict = final$predict %>% as.factor()
 final <- data.frame(actual = test_data$significance,
-                    predict(model_rpart2, newdata = test_data, type = "prob"))
-final$predict = final[-1] %>% apply(1, which.max)
-final$predict = names(final)[-1][final$predict]
-final$predict = final$predict %>% as.factor()
+                    predict = predict(model_rpart2, newdata = test_data), 
+                    row.names = row.names(test_data))
 
 cm_original <- confusionMatrix(final$predict, test_data$significance)
 

@@ -11,7 +11,7 @@ deseq2_dataset = deseq2_dataset[deseq2_dataset$baseMean > 0, ]
 colnames(deseq2_dataset) = colnames(deseq2_dataset) %>% 
   make.names()
 
-X = deseq2_dataset[, -grep('significance', colnames(deseq2_dataset))] %>% 
+X = X_notproc = deseq2_dataset[, -grep('significance', colnames(deseq2_dataset))] %>% 
   as.data.frame() %>% 
   remove_rownames %>% 
   column_to_rownames('ensembl_gene_id')
@@ -66,7 +66,7 @@ ncol(X)
 descrCor <- cor(na.omit(X_under))
 highlyCor <- findCorrelation(descrCor, cutoff = .99)
 
-corrplot::corrplot(descrCor[-highlyCor, highlyCor])
+corrplot::corrplot(descrCor[-highlyCor, highlyCor], tl.cex = .5)
 if (length(highlyCor) > 0) {
   X <- X[,-highlyCor]
   X_under <- X_under[,-highlyCor]
@@ -96,8 +96,14 @@ normalization <- preProcess(X, verbose = T, method = c("center", "scale"))
 X_c_s <- predict(normalization, X) %>%
   as.data.frame()
 
+
+normalization_notproc <- preProcess(X_notproc, verbose = T, method = c("center", "scale"))
+X_notproc_cnt_scl <- predict(normalization_notproc, X_notproc) %>%
+  as.data.frame()
+
 saveRDS(object = X, file = 'data/apap_hecatos/whole_data_preds.rds')
 saveRDS(object = X_c_s, file = 'data/apap_hecatos/whole_data_centered_scaled_preds.rds')
+saveRDS(object = X_notproc_cnt_scl, file = 'data/apap_hecatos/whole_data_unpreprocessed_centered_scaled_preds.rds')
 saveRDS(object = Y, file = 'data/apap_hecatos/whole_data_target.rds')
 saveRDS(object = deseq2_dataset_2, 'data/apap_hecatos/whole_dataset_labelled.rds')
 
