@@ -70,6 +70,11 @@ if (!dir.exists('output/confusion_matrices/apap_21vs21/rpart2/')) {
 cm_original %>% saveRDS('output/confusion_matrices/apap_21vs21/rpart2/original_expressed.rds')
 # cm_under %>% saveRDS('output/confusion_matrices/apap_21vs21/rpart2/under_sampling_expressed.rds')
 
+final_train <- data.frame(actual = train_data$significance,
+                    predict = predict(model_rpart2, newdata = train_data), 
+                    row.names = row.names(train_data))
+
+
 
 # under_sampling ----------------------------------------------------------
 

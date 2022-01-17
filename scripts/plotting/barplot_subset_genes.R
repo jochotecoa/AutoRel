@@ -9,11 +9,11 @@ norm_counts =
   readRDS(file = 'data/apap_hecatos/norm_counts_deseq2_apap_hecatos.rds')
 deseq2_nonlablld_dataset = 
   readRDS(file = 'data/apap_hecatos/deseq2_nonlablld_dataset.rds')
-deseq2_dataset = 
-  readRDS(file = 'data/apap_hecatos/deseq2_dataset.rds')
-
-deseq2_features_subsetted = deseq2_nonlablld_dataset %>% 
-  dplyr::filter(onequartilediff_rule == F) 
+# deseq2_dataset = 
+#   readRDS(file = 'data/apap_hecatos/deseq2_dataset.rds')
+# 
+# deseq2_features_subsetted = deseq2_nonlablld_dataset %>% 
+#   dplyr::filter(onequartilediff_rule == F) 
 
 
 # Barplotting -------------------------------------------------------------
@@ -34,8 +34,12 @@ cts_treatment = norm_counts %>%
 gene_ids = deseq2_features_subsetted["ensembl_gene_id"] %>% 
   unlist()
 
-gene_ids = final[final$actual != final$predict,] %>% 
+gene_ids = final_train[final_train$actual != final_train$predict,] %>% 
   rownames()
+
+gene_ids = 
+  manual_annot[manual_annot$significance == 'nonsignificant', "ensembl_gene_id"] 
+  
 
 # gene_ids = res2[order(res2$padj, decreasing = T),] %>% rownames()
 
@@ -43,7 +47,7 @@ gene_id_i = grep("ENSG00000156869", gene_ids)
 gene_id_f = length(gene_ids)
 
 
-for (gene_id in gene_ids[gene_id_i:gene_id_f]) { # [gene_id_i:gene_id_f]
+for (gene_id in gene_ids) { # [gene_id_i:gene_id_f]
   
   padjv = res2[gene_id, 'padj'] 
   
@@ -56,8 +60,8 @@ for (gene_id in gene_ids[gene_id_i:gene_id_f]) { # [gene_id_i:gene_id_f]
             col = c(rep('gray', ncol(cts_control)), 
                     rep('pink', ncol(cts_treatment))), 
             main = paste0(gene_id, '; padj = ', padjv, 
-                          ' actual: ', final[gene_id, 'actual'], 
-                          ' predicted: ', final[gene_id, 'predict']))
+                          ' actual: ', final_train[gene_id, 'actual'], 
+                          ' predicted: ', final_train[gene_id, 'predict']))
   print(gene_id)
   readline(prompt = "Press [enter] to continue")
 }

@@ -91,9 +91,9 @@ na_non_degs = deseq2_features_all[is.na(deseq2_features_all$padj),] %>%
 # Quantile difference rules -----------------------------------------------
 
 
-threeqd = deseq2_features_all %>% 
+fourqd = deseq2_features_all %>% 
   column_to_rownames('ensembl_gene_id') %>%  
-  dplyr::filter(threequartilediff_rule == T) %>% 
+  dplyr::filter(fourquartilediff_rule == T) %>% 
   row.names()
 
 oneqd = deseq2_features_all %>% 
@@ -106,7 +106,8 @@ oneqd = deseq2_features_all %>%
 # Combine together --------------------------------------------------------
 
 
-manual_degs = data.frame(ensembl_gene_id = row.names(res), significance = NA)
+manual_degs = data.frame(ensembl_gene_id = deseq2_features_all$ensembl_gene_id, 
+                         significance = NA)
 
 
 manual_degs[manual_degs$ensembl_gene_id %in% na_non_degs, 'significance'] = 'nonsignificant'
@@ -115,7 +116,7 @@ manual_degs[manual_degs$ensembl_gene_id %in% non_degs_0.1, 'significance'] = 'no
 manual_degs[manual_degs$ensembl_gene_id %in% non_degs_0.1_0.05, 'significance'] = 'nonsignificant'
 manual_degs[manual_degs$ensembl_gene_id %in% non_degs_0.05, 'significance'] = 'nonsignificant'
 manual_degs[manual_degs$ensembl_gene_id %in% degs_0.05, 'significance'] = 'significant'
-manual_degs[manual_degs$ensembl_gene_id %in% threeqd, 'significance'] = 'significant' 
+manual_degs[manual_degs$ensembl_gene_id %in% fourqd, 'significance'] = 'significant' 
 manual_degs[manual_degs$ensembl_gene_id %in% oneqd, 'significance'] = 'nonsignificant' 
 
 old_nrow = nrow(manual_degs)
@@ -140,7 +141,7 @@ manual_degs = manual_degs[, -grep('significance.y', colnames(manual_degs))] %>%
 
 stopifnot(ncol(manual_degs) == 2)
 
-manual_degs2 = read.csv('data/apap_hecatos/predicted_manually_curated_genes_12102021.csv')
-
+# manual_degs2 = read.csv('data/apap_hecatos/predicted_manually_curated_genes_12102021.csv')
+saveRDS(object = manual_annot, file = 'data/apap_hecatos/manual_annot_apap_hecatos.rds')
 saveRDS(object = manual_degs, file = 'data/apap_hecatos/manual_degs_apap_hecatos.rds')
 

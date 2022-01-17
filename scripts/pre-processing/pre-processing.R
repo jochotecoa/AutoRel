@@ -78,6 +78,7 @@ ncol(X)
 
 comboInfo <- findLinearCombos(na.omit(X))
 if (length(comboInfo$remove) > 0) {
+  print(colnames(X)[comboInfo$remove])
   X = X[, -comboInfo$remove]
 }
 
