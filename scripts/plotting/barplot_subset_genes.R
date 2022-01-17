@@ -9,8 +9,8 @@ norm_counts =
   readRDS(file = 'data/apap_hecatos/norm_counts_deseq2_apap_hecatos.rds')
 deseq2_nonlablld_dataset = 
   readRDS(file = 'data/apap_hecatos/deseq2_nonlablld_dataset.rds')
-# deseq2_dataset = 
-#   readRDS(file = 'data/apap_hecatos/deseq2_dataset.rds')
+deseq2_dataset =
+  readRDS(file = 'data/apap_hecatos/deseq2_dataset.rds')
 # 
 # deseq2_features_subsetted = deseq2_nonlablld_dataset %>% 
 #   dplyr::filter(onequartilediff_rule == F) 
@@ -37,6 +37,10 @@ gene_ids = deseq2_features_subsetted["ensembl_gene_id"] %>%
 gene_ids = final_train[final_train$actual != final_train$predict,] %>% 
   rownames()
 
+deseq2_dataset = deseq2_dataset %>% 
+  remove_rownames() %>% 
+  column_to_rownames('ensembl_gene_id')
+
 gene_ids = 
   manual_annot[manual_annot$significance == 'nonsignificant', "ensembl_gene_id"] 
   
@@ -56,12 +60,19 @@ for (gene_id in gene_ids) { # [gene_id_i:gene_id_f]
   
 
   norm_counts[gene_id, ] %>% 
-    barplot(las  =2, 
+    barplot(las = 2, 
             col = c(rep('gray', ncol(cts_control)), 
                     rep('pink', ncol(cts_treatment))), 
-            main = paste0(gene_id, '; padj = ', padjv, 
-                          ' actual: ', final_train[gene_id, 'actual'], 
-                          ' predicted: ', final_train[gene_id, 'predict']))
+            main = paste(gene_id, 
+                         '; padj = ', format(padjv, scientific = T, digits = 3), 
+                          # ' actual: ', final_train[gene_id, 'actual'], 
+                          # ' predicted: ', final_train[gene_id, 'predict'])
+                         deseq2_dataset[gene_id, 'onequartilediff_rule'], 
+                         deseq2_dataset[gene_id, 'twoquartilediff_rule'],
+                         deseq2_dataset[gene_id, 'threequartilediff_rule'],
+                         deseq2_dataset[gene_id, 'fourquartilediff_rule']
+                         )
+            )
   print(gene_id)
   readline(prompt = "Press [enter] to continue")
 }
