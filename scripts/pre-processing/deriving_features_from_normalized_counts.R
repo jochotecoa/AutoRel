@@ -2,6 +2,19 @@ source('scripts/functions/functions_JOA.R')
 forceLibrary(c('biomaRt', "tximport", "dplyr", "DESeq2", "grid", "ggplot2", 
                "pheatmap", "BiocParallel", 'tibble', 'edgeR'))
 
+
+# Functions ---------------------------------------------------------------
+
+removeOutliers <- function(x) {
+  otlrs = outlier(x)
+  indx_otlrs = x %in% otlrs
+  x = x[!indx_otlrs]
+  return(x)
+}
+
+# Input data --------------------------------------------------------------
+
+
 # res = readRDS(file = 'data/apap_hecatos/results_dds_deseq2_apap_hecatos.rds')
 
 # manual_degs = readRDS(file = 'data/apap_hecatos/manual_degs_apap_hecatos.rds')
