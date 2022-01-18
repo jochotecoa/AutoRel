@@ -1,10 +1,9 @@
+source('scripts/functions/functions_JOA.R')
+forceLibrary(c('mlbench', 'caret', 'doMC', 'dplyr', 'RANN'))
 # source('script/recursive_feature_elimination/load_data_rfe.R')
 forceLibrary('randomForest')
 
-X = 'data/apap_hecatos/whole_data_preds.rds' %>% readRDS()
-
-
-apap_data = cbind.data.frame(X, Y) 
+apap_data = 'data/apap_hecatos/whole_dataset_labelled.rds' %>% readRDS()
 colnames(apap_data)[ncol(apap_data)] = 'significance'
 
 index <- createDataPartition(apap_data$significance, p = 0.75, list = FALSE)
