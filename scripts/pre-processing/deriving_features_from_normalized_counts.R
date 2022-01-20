@@ -19,7 +19,7 @@ removeOutliers <- function(x) {
 
 # manual_degs = readRDS(file = 'data/apap_hecatos/manual_degs_apap_hecatos.rds')
 
-norm_counts = 'data/apap_hecatos/norm_counts_deseq2_apap_hecatos.rds' %>% readRDS
+norm_counts = 'data/apap_hecatos/norm_counts_9vs9_deseq2_apap_hecatos.rds' %>% readRDS
 
 colnames_con = subset(x = colnames(norm_counts), 
                       grepl('ConDMSO', colnames(norm_counts)))
@@ -341,6 +341,9 @@ sprs_spks_con = norm_counts_con %>% spur_spike_filter
 sprs_spks_treat = norm_counts_treat %>% spur_spike_filter
 
 norm_counts_features$spurious_spikes = sprs_spks_con | sprs_spks_treat
+
+# Save features -----------------------------------------------------------
+
 
 norm_counts_features %>% saveRDS('data/apap_hecatos/norm_counts_features.rds')
 

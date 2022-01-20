@@ -33,7 +33,7 @@ model_CSimca %>% saveRDS('output/trained_models/apap_21vs21/CSimca/original.rds'
 
 
 final <- data.frame(actual = test_data$significance,
-                    predict(model_CSimca, newdata = test_data)
+                    predict(model_CSimca, newdata = test_data))
 final$predict = final[, 2] %>% as.factor()
 
 cm_original <- confusionMatrix(final$predict, test_data$significance)

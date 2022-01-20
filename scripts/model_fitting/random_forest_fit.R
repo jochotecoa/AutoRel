@@ -38,6 +38,20 @@ model_rf <- caret::train(significance ~ .,
                                                   repeats = 10, allowParallel = T, 
                                                   verboseIter = TRUE))
 
+final <- data.frame(actual = test_data$significance,
+                    predict = predict(model_rf, newdata = test_data), 
+                    row.names = row.names(test_data))
+
+cm_original <- confusionMatrix(final$predict, test_data$significance)
+
+if (!dir.exists('output/confusion_matrices/apap_21vs21/rf/')) {
+  dir.create('output/confusion_matrices/apap_21vs21/rf/', recursive = T)
+}
+
+# cm_over %>% saveRDS('output/confusion_matrices/apap_21vs21/rpart2/over-sampling_expressed.rds')
+cm_original %>% saveRDS('output/confusion_matrices/apap_21vs21/rf/original_expressed.rds')
+
+
 ctrl <- trainControl(method = "repeatedcv", 
                      number = 10, 
                      repeats = 10, allowParallel = T, 

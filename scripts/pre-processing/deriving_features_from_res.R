@@ -2,7 +2,7 @@ source('scripts/functions/functions_JOA.R')
 forceLibrary(c('biomaRt', "tximport", "dplyr", "DESeq2", "grid", "ggplot2", 
                "pheatmap", "BiocParallel", 'tibble', 'edgeR'))
 
-res = readRDS(file = 'data/apap_hecatos/results_dds_deseq2_apap_hecatos.rds')
+res = readRDS(file = 'data/apap_hecatos/results_dds_9vs9_deseq2_apap_hecatos.rds')
 
 res_df = res %>% as.data.frame()
 
@@ -36,4 +36,4 @@ all_res$padj[is.na(all_res$padj)] = 1
 
 all_res$fdrlowerthan0.01 = all_res$padj < 0.01
 
-all_res %>% saveRDS(file = 'data/apap_hecatos/all_res_apap_hecatos.rds')
+all_res %>% saveRDS(file = 'data/apap_hecatos/all_res_9vs9_apap_hecatos.rds')
