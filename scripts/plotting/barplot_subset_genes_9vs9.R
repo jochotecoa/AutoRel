@@ -37,12 +37,13 @@ cts_treatment = norm_counts %>%
 
 deseq2_features_subs = deseq2_features_all %>%
   remove_rownames() %>%
-  column_to_rownames('ensembl_gene_id') %>% 
-  dplyr::filter(
-    # `fourquartilediff_rule` == T, 
-    rule_cpm_0.75_above_1 == F,
-    baseMean > 0
-    )
+  column_to_rownames('ensembl_gene_id') 
+# %>% 
+#   dplyr::filter(
+#     # `fourquartilediff_rule` == T, 
+#     rule_cpm_0.75_above_1 == F,
+#     baseMean > 0
+#     )
 
 # gene_ids = 
 #   manual_annot[manual_annot$significance == 'nonsignificant', "ensembl_gene_id"] 
@@ -52,11 +53,11 @@ deseq2_features_subs = deseq2_features_all %>%
 gene_ids = deseq2_features_subs %>% 
   rownames()
 
-gene_id_i = grep("ENSG00000105270", gene_ids)
+gene_id_i = grep("ENSG00000185559", gene_ids)
 gene_id_f = length(gene_ids)
 
 
-for (gene_id in gene_ids) { # [gene_id_i:gene_id_f]
+for (gene_id in gene_ids[gene_id_i:gene_id_f]) { # [gene_id_i:gene_id_f]
   
   padjv = deseq2_features_subs[gene_id, 'padj'] 
   
