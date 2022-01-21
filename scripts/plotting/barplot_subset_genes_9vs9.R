@@ -9,8 +9,8 @@ norm_counts =
   readRDS(file = 'data/apap_hecatos/norm_counts_9vs9_deseq2_apap_hecatos.rds')
 deseq2_nonlablld_dataset = 
   readRDS(file = 'data/apap_hecatos/deseq2_nonlablld_dataset.rds')
-deseq2_features_all.rds =
-  readRDS(file = 'data/apap_hecatos/deseq2_features_all.rds')
+deseq2_features_all =
+  readRDS(file = 'data/apap_hecatos/deseq2_features_all_9vs9.rds')
 # 
 # deseq2_features_subsetted = deseq2_nonlablld_dataset %>% 
 #   dplyr::filter(onequartilediff_rule == F) 
@@ -31,31 +31,34 @@ cts_treatment = norm_counts %>%
 
 
 
-gene_ids = deseq2_features_subsetted["ensembl_gene_id"] %>% 
-  unlist()
+# gene_ids = deseq2_features_subsetted["ensembl_gene_id"] %>% 
+#   unlist()
 
 
-deseq2_features_all = deseq2_features_all %>%
+deseq2_features_subs = deseq2_features_all %>%
   remove_rownames() %>%
   column_to_rownames('ensembl_gene_id') %>% 
-  dplyr::select(onequartilediff_rule == F, 
-                padj < 0.05)
+  dplyr::filter(
+    # `fourquartilediff_rule` == T, 
+    rule_cpm_0.75_above_1 == F,
+    baseMean > 0
+    )
 
 # gene_ids = 
 #   manual_annot[manual_annot$significance == 'nonsignificant', "ensembl_gene_id"] 
   
 
 # gene_ids = res2[order(res2$padj, decreasing = T),] %>% rownames()
-gene_ids = deseq2_features_all %>% 
+gene_ids = deseq2_features_subs %>% 
   rownames()
 
-gene_id_i = grep("ENSG00000054277", gene_ids)
+gene_id_i = grep("ENSG00000105270", gene_ids)
 gene_id_f = length(gene_ids)
 
 
 for (gene_id in gene_ids) { # [gene_id_i:gene_id_f]
   
-  padjv = res2[gene_id, 'padj'] 
+  padjv = deseq2_features_subs[gene_id, 'padj'] 
   
   contr_cols = grep('ConDMSO', colnames(norm_counts))
   treatm_cols = grep('APA_The', colnames(norm_counts))
@@ -66,11 +69,13 @@ for (gene_id in gene_ids) { # [gene_id_i:gene_id_f]
             col = c(rep('gray', ncol(cts_control)), 
                     rep('pink', ncol(cts_treatment))), 
             main = paste(gene_id, 
-                         '; padj = ', format(padjv, scientific = T, digits = 3), 
-                         deseq2_features_all[gene_id, 'onequartilediff_rule'],
-                         deseq2_features_all[gene_id, 'twoquartilediff_rule'],
-                         deseq2_features_all[gene_id, 'threequartilediff_rule'],
-                         deseq2_features_all[gene_id, 'fourquartilediff_rule']
+                         '; padj = ', format(padjv, scientific = T, digits = 3),
+                         'cpm_rule:', 
+                         deseq2_features_subs[gene_id, 'rule_cpm_0.75_above_1'],
+                         deseq2_features_subs[gene_id, 'onequartilediff_rule'],
+                         deseq2_features_subs[gene_id, 'twoquartilediff_rule'],
+                         deseq2_features_subs[gene_id, 'threequartilediff_rule'],
+                         deseq2_features_subs[gene_id, 'fourquartilediff_rule']
                          )
             )
   print(gene_id)
@@ -79,7 +84,7 @@ for (gene_id in gene_ids) { # [gene_id_i:gene_id_f]
 
 for (gene_id in gene_ids) { # [gene_id_i:gene_id_f]
   
-  padjv = res2[gene_id, 'padj'] 
+  padjv = deseq2_features_subs[gene_id, 'padj'] 
   
   contr_cols = grep('ConDMSO', colnames(norm_counts))
   treatm_cols = grep('APA_The', colnames(norm_counts))
@@ -91,6 +96,7 @@ for (gene_id in gene_ids) { # [gene_id_i:gene_id_f]
   data_bxplt = data.frame(ConDMSO = data_bxplt[grep('ConDMSO', rownames(data_bxplt)), 1], 
                           APA_The = data_bxplt[grep('APA_The', rownames(data_bxplt)), 1])
   boxplot(x = data_bxplt, ylab = 'normalized_counts', main = gene_id)
+  print(gene_id)
   readline(prompt = "Press [enter] to continue")
   
 }

@@ -28,7 +28,7 @@ colnames_treat = subset(x = colnames(norm_counts),
 
 
 # CPM rule ----------------------------------------------------------------
-
+cpm_time = Sys.time()
 
 cpm_norm_counts = cpm(norm_counts) %>% as.data.frame()
 cpm_norm_counts_con = cpm_norm_counts[, colnames_con]
@@ -63,7 +63,8 @@ treat_length = ncol(norm_counts_treat)
 
 
 # Mean, SD, and Var -------------------------------------------------------
-
+meansdvar_time = Sys.time()
+print(cpm_time - meansdvar_time)
 
 apply_list_fns <- function(x, fns = c('mean', 'sd', 'var'), quantiles = NULL) {
   for (fns_i in fns) {
@@ -91,6 +92,8 @@ norm_counts_treat_2 = norm_counts_treat %>%
   apply_list_fns(fns = c('mean', 'sd', 'var'))
 
 # Quantiles ---------------------------------------------------------------
+quantile_time = Sys.time()
+print(meansdvar_time - quantile_time)
 
 
 norm_counts_con_quantiles = norm_counts_con %>% 
@@ -116,6 +119,8 @@ norm_counts_treat_2 = norm_counts_treat_2 %>%
   cbind.data.frame(norm_counts_treat_quantiles)
 
 # Feature the median of each 1/10th of the samples ------------------------
+onetenth_time = Sys.time()
+print(quantile_time - onetenth_time)
 
 
 subsample_median <- function(x, num_var, portions) {
@@ -126,9 +131,13 @@ subsample_median <- function(x, num_var, portions) {
     y = x[, 1:num_var]
     
     c_f = floor(ct_port*portion)
-    y = y[, c_i:c_f]
-    
-    x[, paste0(portion, 'th_subset_median')] = apply(y, 1, median)
+    if (c_f <= c_i) {
+      x[, paste0(portion, 'th_subset_median')] = y[, c_i]
+    } else {
+      y = y[, c_i:c_f]
+      
+      x[, paste0(portion, 'th_subset_median')] = apply(y, 1, median)
+    }
     
     c_i = ceiling(ct_port*portion)
     # y = y[, :]
@@ -139,9 +148,11 @@ subsample_median <- function(x, num_var, portions) {
 norm_counts_con_3 = norm_counts_con_2 %>% 
   subsample_median(num_var = con_length, portions = 10)
 norm_counts_treat_3 = norm_counts_treat_2 %>% 
-  subsample_median(num_var = con_length, portions = 10)
+  subsample_median(num_var = treat_length, portions = 10)
 
 # Count NA observations ---------------------------------------------------
+nacount_time = Sys.time()
+print(onetenth_time - nacount_time)
 
 
 norm_counts_con_4 = norm_counts_con_3
@@ -169,7 +180,9 @@ norm_counts_treat_4$Proportion_nonexpressed_samples =
   norm_counts_treat_4$N_nonexpressed_samples / treat_length
 
 # Count outliers ----------------------------------------------------------
-
+outliercount_time = Sys.time()
+print(nacount_time - outliercount_time)
+# This section takes an hour to run
 
 countOutliers <- function(x, na.rm = T, ...) {
   y = outlier(x, na.rm = na.rm, ...)
@@ -245,6 +258,8 @@ for (feature_name in feature_names) {
 }
 
 # Third Quartile Rule -----------------------------------------------------
+quantdiff_time = Sys.time()
+print(outliercount_time - quantdiff_time)
 
 
 # onequartilediff_rule = 
@@ -322,6 +337,8 @@ stopifnot(identical(rownames(norm_counts_features), rownames(cpm_feature)))
 norm_counts_features = cbind.data.frame(norm_counts_features, cpm_feature)
 
 # Spurious Spike Filter ---------------------------------------------------
+spuspi_time = Sys.time()
+print(quantdiff_time - spuspi_time)
 
 
 spur_spike_filter = function(x) {
@@ -343,6 +360,8 @@ sprs_spks_treat = norm_counts_treat %>% spur_spike_filter
 norm_counts_features$spurious_spikes = sprs_spks_con | sprs_spks_treat
 
 # Save features -----------------------------------------------------------
+end_time = Sys.time()
+print(spuspi_time - end_time)
 
 
 norm_counts_features %>% saveRDS('data/apap_hecatos/norm_counts_features_9vs9.rds')

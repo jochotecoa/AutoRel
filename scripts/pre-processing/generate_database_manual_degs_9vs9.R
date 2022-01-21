@@ -2,7 +2,7 @@
 
 # Putting final results toguether -----------------------------------------
 
-deseq2_features_all = readRDS(file = 'data/apap_hecatos/deseq2_features_all.rds')
+deseq2_features_all = readRDS(file = 'data/apap_hecatos/deseq2_features_all_9vs9.rds')
 
 
 # manual_annot = read.csv('data/apap_hecatos_manual_significant.csv')
@@ -102,40 +102,51 @@ oneqd = deseq2_features_all %>%
   row.names()
 
 
+
+# CPM rule ----------------------------------------------------------------
+
+cpmrule = deseq2_features_all %>% 
+  column_to_rownames('ensembl_gene_id') %>%  
+  dplyr::filter(rule_cpm_0.75_above_1 == F) %>% 
+  row.names()
+
+
 # Combine together --------------------------------------------------------
 
 
 manual_degs = data.frame(ensembl_gene_id = deseq2_features_all$ensembl_gene_id, 
                          significance = NA)
 
-
-manual_degs[manual_degs$ensembl_gene_id %in% na_non_degs, 'significance'] = 'nonsignificant'
-manual_degs[manual_degs$ensembl_gene_id %in% fourqd, 'significance'] = 'significant' 
 manual_degs[manual_degs$ensembl_gene_id %in% oneqd, 'significance'] = 'nonsignificant' 
+manual_degs[manual_degs$ensembl_gene_id %in% fourqd, 'significance'] = 'significant' 
+manual_degs[manual_degs$ensembl_gene_id %in% na_non_degs, 'significance'] = 'nonsignificant'
+manual_degs[manual_degs$ensembl_gene_id %in% cpmrule, 'significance'] = 'nonsignificant'
 
-old_nrow = nrow(manual_degs)
-manual_degs = manual_degs %>% 
-  merge.data.frame(y = manual_annot, by = 'ensembl_gene_id', all = T)
-stopifnot(old_nrow == nrow(manual_degs))
 
-manual_degs[!is.na(manual_degs$significance.y), 'significance.x'] = 
-  manual_degs[!is.na(manual_degs$significance.y), 'significance.y']
+# old_nrow = nrow(manual_degs)
+# manual_degs = manual_degs %>% 
+#   merge.data.frame(y = manual_annot, by = 'ensembl_gene_id', all = T)
+# stopifnot(old_nrow == nrow(manual_degs))
 
-manual_degs[is.na(manual_degs$significance.y), 'significance.y'] = 
-  manual_degs[is.na(manual_degs$significance.y), 'significance.x']
-
-stopifnot(all.equal(manual_degs[, 'significance.x'], 
-                    manual_degs[, 'significance.y']))
-
-colnames(manual_degs)[grep('significance.x', colnames(manual_degs))] = 
-  'significance'
-
-manual_degs = manual_degs[, -grep('significance.y', colnames(manual_degs))] %>% 
-  na.omit()
+# manual_degs[!is.na(manual_degs$significance.y), 'significance.x'] = 
+#   manual_degs[!is.na(manual_degs$significance.y), 'significance.y']
+# 
+# manual_degs[is.na(manual_degs$significance.y), 'significance.y'] = 
+#   manual_degs[is.na(manual_degs$significance.y), 'significance.x']
+# 
+# stopifnot(all.equal(manual_degs[, 'significance.x'], 
+#                     manual_degs[, 'significance.y']))
+# 
+# colnames(manual_degs)[grep('significance.x', colnames(manual_degs))] = 
+#   'significance'
+# 
+# manual_degs = manual_degs[, -grep('significance.y', colnames(manual_degs))] %>% 
+#   na.omit()
 
 stopifnot(ncol(manual_degs) == 2)
-
+manual_degs = manual_degs %>% 
+  na.omit()
 # manual_degs2 = read.csv('data/apap_hecatos/predicted_manually_curated_genes_12102021.csv')
-saveRDS(object = manual_annot, file = 'data/apap_hecatos/manual_annot_apap_hecatos.rds')
-saveRDS(object = manual_degs, file = 'data/apap_hecatos/manual_degs_apap_hecatos.rds')
+# saveRDS(object = manual_annot, file = 'data/apap_hecatos/manual_annot_apap_hecatos.rds')
+saveRDS(object = manual_degs, file = 'data/apap_hecatos/manual_degs_apap_hecatos_9vs9.rds')
 
