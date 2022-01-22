@@ -44,11 +44,11 @@ model_rpart2 <- caret::train(significance ~ .,
                                                       verboseIter = TRUE, 
                                                       repeats = 10))
 
-if (!dir.exists('output/trained_models/apap_9vs9/rpart2/')) {
-  dir.create('output/trained_models/apap_9vs9/rpart2/', recursive = T)
+if (!dir.exists('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/rpart2/')) {
+  dir.create('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/rpart2/', recursive = T)
 }
 
-model_rpart2 %>% saveRDS('output/trained_models/apap_9vs9/rpart2/original_expressed.rds')
+model_rpart2 %>% saveRDS('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/rpart2/original_expressed.rds')
 
 
 # final <- data.frame(actual = test_data$significance,
@@ -88,11 +88,11 @@ model_rpart2_under <- caret::train(significance ~ .,
                                                             sampling = "down")
 )
 
-if (!dir.exists('output/trained_models/apap_9vs9/rpart2/')) {
-  dir.create('output/trained_models/apap_9vs9/rpart2/', recursive = T)
+if (!dir.exists('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/rpart2/')) {
+  dir.create('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/rpart2/', recursive = T)
 }
 
-model_rpart2_under %>% saveRDS('output/trained_models/apap_9vs9/rpart2/under_sampling_expressed.rds')
+model_rpart2_under %>% saveRDS('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/rpart2/under_sampling_expressed.rds')
 
 
 final <- data.frame(actual = test_data$significance,
@@ -129,11 +129,11 @@ model_rpart2_over <- caret::train(significance ~ .,
                                                            sampling = "up")
 )
 
-if (!dir.exists('output/trained_models/apap_9vs9/rpart2/')) {
-  dir.create('output/trained_models/apap_9vs9/rpart2/', recursive = T)
+if (!dir.exists('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/rpart2/')) {
+  dir.create('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/rpart2/', recursive = T)
 }
 
-model_rpart2_over %>% saveRDS('output/trained_models/apap_9vs9/rpart2/over_sampling_expressed.rds')
+model_rpart2_over %>% saveRDS('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/rpart2/over_sampling_expressed.rds')
 
 
 final <- data.frame(actual = test_data$significance,

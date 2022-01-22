@@ -27,11 +27,11 @@ model_kknn <- caret::train(significance ~ .,
                                                     verboseIter = TRUE, 
                                                     repeats = 10))
 
-if (!dir.exists('output/trained_models/apap_9vs9/kknn/')) {
-  dir.create('output/trained_models/apap_9vs9/kknn/', recursive = T)
+if (!dir.exists('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/kknn/')) {
+  dir.create('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/kknn/', recursive = T)
 }
 
-model_kknn %>% saveRDS('output/trained_models/apap_9vs9/kknn/original.rds')
+model_kknn %>% saveRDS('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/kknn/original.rds')
 
 
 final <- data.frame(actual = test_data$significance,
