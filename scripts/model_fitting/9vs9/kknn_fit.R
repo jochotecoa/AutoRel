@@ -25,7 +25,9 @@ model_kknn <- caret::train(significance ~ .,
                            trControl = trainControl(method = "repeatedcv", 
                                                     allowParallel = T, 
                                                     verboseIter = TRUE, 
-                                                    repeats = 10))
+                                                    repeats = 10, 
+                                                    classProbs = TRUE,
+                                                    savePredictions = TRUE))
 
 if (!dir.exists('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/kknn/')) {
   dir.create('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/kknn/', recursive = T)
@@ -34,8 +36,10 @@ if (!dir.exists('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/kkn
 model_kknn %>% saveRDS('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/kknn/original.rds')
 
 
-final <- data.frame(actual = test_data$significance,
-                    predict = predict(model_kknn, newdata = test_data), 
+final <- data.frame(obs = test_data$significance,
+                    pred = predict(model_kknn, newdata = test_data), 
+                    predict(model_kknn, newdata = test_data, 
+                            type = "prob"),
                     row.names = row.names(test_data))
 
 cm_original <- confusionMatrix(final$predict, test_data$significance)

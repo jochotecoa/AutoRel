@@ -123,30 +123,20 @@ manual_degs[manual_degs$ensembl_gene_id %in% na_non_degs, 'significance'] = 'non
 manual_degs[manual_degs$ensembl_gene_id %in% cpmrule, 'significance'] = 'nonsignificant'
 
 
-# old_nrow = nrow(manual_degs)
-# manual_degs = manual_degs %>% 
-#   merge.data.frame(y = manual_annot, by = 'ensembl_gene_id', all = T)
-# stopifnot(old_nrow == nrow(manual_degs))
-
-# manual_degs[!is.na(manual_degs$significance.y), 'significance.x'] = 
-#   manual_degs[!is.na(manual_degs$significance.y), 'significance.y']
-# 
-# manual_degs[is.na(manual_degs$significance.y), 'significance.y'] = 
-#   manual_degs[is.na(manual_degs$significance.y), 'significance.x']
-# 
-# stopifnot(all.equal(manual_degs[, 'significance.x'], 
-#                     manual_degs[, 'significance.y']))
-# 
-# colnames(manual_degs)[grep('significance.x', colnames(manual_degs))] = 
-#   'significance'
-# 
-# manual_degs = manual_degs[, -grep('significance.y', colnames(manual_degs))] %>% 
-#   na.omit()
 
 stopifnot(ncol(manual_degs) == 2)
 manual_degs = manual_degs %>% 
   na.omit()
-# manual_degs2 = read.csv('data/apap_hecatos/predicted_manually_curated_genes_12102021.csv')
-# saveRDS(object = manual_annot, file = 'data/apap_hecatos/manual_annot_apap_hecatos.rds')
+
+manual_annot = 'data/apap_hecatos/predicted_manually_curated_genes_9vs9.csv' %>% 
+  read.csv(header = F)
+
+colnames(manual_annot) = colnames(manual_degs)
+
+manual_degs = rbind(manual_annot, manual_degs) 
+
+manual_degs = manual_degs[!duplicated(manual_degs$ensembl_gene_id), ]
+
+
 saveRDS(object = manual_degs, file = 'data/apap_hecatos/manual_degs_apap_hecatos_9vs9.rds')
 
