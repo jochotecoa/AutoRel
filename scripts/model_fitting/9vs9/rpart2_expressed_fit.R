@@ -42,7 +42,9 @@ model_rpart2 <- caret::train(significance ~ .,
                              trControl = trainControl(method = "repeatedcv", 
                                                       allowParallel = T, 
                                                       verboseIter = TRUE, 
-                                                      repeats = 10))
+                                                      repeats = 10, 
+                                                      classProbs = TRUE,
+                                                      savePredictions = TRUE))
 
 if (!dir.exists('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/rpart2/')) {
   dir.create('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/rpart2/', recursive = T)
@@ -58,6 +60,7 @@ model_rpart2 %>% saveRDS('/ngs-data-2/analysis/juan/autosign/trained_models/apap
 # final$predict = final$predict %>% as.factor()
 final <- data.frame(actual = test_data$significance,
                     predict = predict(model_rpart2, newdata = test_data), 
+                    predict(model_rpart2, newdata = test_data, type = 'prob'),
                     row.names = row.names(test_data))
 
 cm_original <- confusionMatrix(final$predict, test_data$significance)
@@ -123,11 +126,13 @@ model_rpart2_over <- caret::train(significance ~ .,
                                   data = train_data,
                                   method = "rpart2",
                                   preProcess = c("scale", "center"),
-                                  trControl = trainControl(method = "cv", 
+                                  trControl = trainControl(method = "repeatedcv", 
                                                            allowParallel = T, 
                                                            verboseIter = TRUE, 
-                                                           sampling = "up")
-)
+                                                           repeats = 10, 
+                                                           classProbs = TRUE,
+                                                           savePredictions = TRUE))
+
 
 if (!dir.exists('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/rpart2/')) {
   dir.create('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/rpart2/', recursive = T)

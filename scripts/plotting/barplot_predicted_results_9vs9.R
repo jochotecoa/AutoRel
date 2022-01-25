@@ -39,9 +39,8 @@ deseq2_features_subs = deseq2_features_all %>%
   remove_rownames() %>%
   column_to_rownames('ensembl_gene_id') %>%
   dplyr::filter(
-    `fourquartilediff_rule` == F,
-    `threequartilediff_rule` == T,
-    padj > 0.3
+    `threequartilediff_rule` == F,
+    `twoquartilediff_rule` == T
 #     rule_cpm_0.75_above_1 == F,
 #     baseMean > 0
     )
