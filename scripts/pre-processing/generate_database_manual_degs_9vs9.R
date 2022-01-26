@@ -101,6 +101,16 @@ oneqd = deseq2_features_all %>%
   dplyr::filter(onequartilediff_rule == F) %>% 
   row.names()
 
+threeqd_03 = deseq2_features_all %>% 
+  column_to_rownames('ensembl_gene_id') %>%  
+  dplyr::filter(
+    `fourquartilediff_rule` == F,
+    `threequartilediff_rule` == T,
+    padj > 0.3
+  ) %>% 
+  row.names()
+
+
 
 
 # CPM rule ----------------------------------------------------------------
@@ -118,6 +128,7 @@ manual_degs = data.frame(ensembl_gene_id = deseq2_features_all$ensembl_gene_id,
                          significance = NA)
 
 manual_degs[manual_degs$ensembl_gene_id %in% oneqd, 'significance'] = 'nonsignificant' 
+manual_degs[manual_degs$ensembl_gene_id %in% threeqd_03, 'significance'] = 'significant' 
 manual_degs[manual_degs$ensembl_gene_id %in% fourqd, 'significance'] = 'significant' 
 manual_degs[manual_degs$ensembl_gene_id %in% na_non_degs, 'significance'] = 'nonsignificant'
 manual_degs[manual_degs$ensembl_gene_id %in% cpmrule, 'significance'] = 'nonsignificant'
