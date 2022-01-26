@@ -33,6 +33,14 @@ cts_treatment = norm_counts %>%
 
 
 
+# deseq2_features_subs = deseq2_features_all %>%
+#   remove_rownames() %>%
+#   column_to_rownames('ensembl_gene_id') %>%
+#   dplyr::filter(
+#     `threequartilediff_rule` == F,
+#     `twoquartilediff_rule` == T
+#     )
+
 deseq2_features_subs = deseq2_features_all %>%
   remove_rownames() %>%
   column_to_rownames('ensembl_gene_id') %>%
@@ -53,7 +61,7 @@ deseq2_features_subs[sapply(deseq2_features_subs, is.logical)] = deseq2_features
 model_kknn = readRDS('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/kknn/original.rds')
 
 deseq2_features_subs = 
-  deseq2_features_subs[, colnames(deseq2_features_subs) %in% model_rpart2$coefnames]
+  deseq2_features_subs[, colnames(deseq2_features_subs) %in% model_kknn$coefnames]
 
 
 unlabelled_predicted <- data.frame(predict = 
@@ -70,9 +78,9 @@ unlabelled_predicted <- data.frame(predict =
 
 # gene_ids = res2[order(res2$padj, decreasing = T),] %>% rownames()
 gene_ids = unlabelled_predicted %>% 
-  rownames()
+  rownames() %>% sort() %>% .[57:100]
 
-gene_id_i = grep("ENSG00000162650", gene_ids)
+gene_id_i = grep("ENSG00000159459", gene_ids)
 gene_id_f = length(gene_ids)
 
 
