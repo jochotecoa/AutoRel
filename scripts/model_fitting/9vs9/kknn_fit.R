@@ -42,7 +42,7 @@ final <- data.frame(obs = test_data$significance,
                             type = "prob"),
                     row.names = row.names(test_data))
 
-cm_original <- confusionMatrix(final$predict, test_data$significance)
+cm_original <- confusionMatrix(final$pred, test_data$significance)
 
 if (!dir.exists('output/confusion_matrices/apap_9vs9/kknn/')) {
   dir.create('output/confusion_matrices/apap_9vs9/kknn/', recursive = T)

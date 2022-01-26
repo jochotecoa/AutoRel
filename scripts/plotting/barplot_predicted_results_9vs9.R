@@ -72,13 +72,15 @@ unlabelled_predicted <- data.frame(predict =
                                      row.names(deseq2_features_subs))
 
 
-# gene_ids = 
-#   manual_annot[manual_annot$significance == 'nonsignificant', "ensembl_gene_id"] 
+
+
+gene_ids = final[final$obs != final$pred, ] %>% 
+  row.names()
   
 
 # gene_ids = res2[order(res2$padj, decreasing = T),] %>% rownames()
-gene_ids = unlabelled_predicted %>% 
-  rownames() %>% sort() %>% .[57:100]
+# gene_ids = unlabelled_predicted %>% 
+#   rownames() %>% sort() %>% .[57:100]
 
 gene_id_i = grep("ENSG00000159459", gene_ids)
 gene_id_f = length(gene_ids)
@@ -101,11 +103,15 @@ for (gene_id in gene_ids) { # [gene_id_i:gene_id_f]
                          '; padj = ', format(padjv, scientific = T, digits = 3),
                          'cpm_rule:', 
                          deseq2_features_subs[gene_id, 'rule_cpm_0.75_above_1'],
-                         unlabelled_predicted[gene_id, 'predict']
-                         # deseq2_features_subs[gene_id, 'onequartilediff_rule'],
-                         # deseq2_features_subs[gene_id, 'twoquartilediff_rule'],
-                         # deseq2_features_subs[gene_id, 'threequartilediff_rule'],
-                         # deseq2_features_subs[gene_id, 'fourquartilediff_rule']
+                         # unlabelled_predicted[gene_id, 'predict']
+                         'Predicted:' ,
+                         final[gene_id, 'pred'],
+                         'Observed:',
+                         final[gene_id, 'obs'],
+                         deseq2_features_subs[gene_id, 'onequartilediff_rule'],
+                         deseq2_features_subs[gene_id, 'twoquartilediff_rule'],
+                         deseq2_features_subs[gene_id, 'threequartilediff_rule'],
+                         deseq2_features_subs[gene_id, 'fourquartilediff_rule']
                          )
             )
   
