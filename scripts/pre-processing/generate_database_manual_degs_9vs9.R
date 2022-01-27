@@ -115,10 +115,10 @@ threeqd_03 = deseq2_features_all %>%
 
 # CPM rule ----------------------------------------------------------------
 
-cpmrule = deseq2_features_all %>% 
-  column_to_rownames('ensembl_gene_id') %>%  
-  dplyr::filter(rule_cpm_0.75_above_1 == F) %>% 
-  row.names()
+# cpmrule = deseq2_features_all %>% 
+#   column_to_rownames('ensembl_gene_id') %>%  
+#   dplyr::filter(rule_cpm_0.75_above_1 == F) %>% 
+#   row.names()
 
 
 # Combine together --------------------------------------------------------
@@ -131,7 +131,7 @@ manual_degs[manual_degs$ensembl_gene_id %in% oneqd, 'significance'] = 'nonsignif
 manual_degs[manual_degs$ensembl_gene_id %in% threeqd_03, 'significance'] = 'significant' 
 manual_degs[manual_degs$ensembl_gene_id %in% fourqd, 'significance'] = 'significant' 
 manual_degs[manual_degs$ensembl_gene_id %in% na_non_degs, 'significance'] = 'nonsignificant'
-manual_degs[manual_degs$ensembl_gene_id %in% cpmrule, 'significance'] = 'nonsignificant'
+# manual_degs[manual_degs$ensembl_gene_id %in% cpmrule, 'significance'] = 'nonsignificant'
 
 
 
