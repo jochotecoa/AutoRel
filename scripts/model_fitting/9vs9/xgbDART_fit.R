@@ -1,0 +1,50 @@
+source('scripts/functions/functions_JOA.R')
+forceLibrary(c('mlbench', 'caret', 'doMC', 'dplyr', 'RANN'))
+
+# source('script/recursive_feature_elimination/load_data_xgbDARTe.R')
+forceLibrary(c('xgboost', 'plyr')) # Needed for bagged trees
+
+apap_data = 'data/apap_hecatos/whole_dataset_labelled_9vs9.rds' %>% 
+  readRDS()
+
+index <- createDataPartition(apap_data$significance, p = 0.75, list = FALSE)
+train_data <- apap_data[index, ]
+test_data  <- apap_data[-index, ]
+
+colnames(train_data) = colnames(train_data) %>% 
+  make.names()
+colnames(test_data) = colnames(test_data) %>% 
+  make.names()
+
+
+model_xgbDART <- caret::train(significance ~ .,
+                                data = train_data,
+                                method = "xgbDART",
+                                preProcess = c("scale", "center"),
+                                trControl = trainControl(method = "cv", 
+                                                         allowParallel = F, 
+                                                         verboseIter = TRUE))
+
+if (!dir.exists('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/xgbDART/')) {
+  dir.create('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/xgbDART/', recursive = T)
+}
+
+model_xgbDART %>% saveRDS('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/xgbDART/original.rds')
+
+
+final <- data.frame(actual = test_data$significance,
+                    predict(model_xgbDART, newdata = test_data, type = "prob"))
+final$predict = final[-1] %>% apply(1, which.max)
+final$predict = names(final)[-1][final$predict]
+final$predict = final$predict %>% as.factor()
+
+cm_original <- confusionMatrix(final$predict, test_data$significance)
+
+if (!dir.exists('output/confusion_matrices/apap_9vs9/xgbDART/')) {
+  dir.create('output/confusion_matrices/apap_9vs9/xgbDART/', recursive = T)
+}
+
+# cm_over %>% saveRDS('output/confusion_matrices/apap_9vs9/xgbDART/over-sampling.rds')
+cm_original %>% saveRDS('output/confusion_matrices/apap_9vs9/xgbDART/original.rds')
+# cm_under %>% saveRDS('output/confusion_matrices/apap_9vs9/xgbDART/under-sampling.rds')
+
