@@ -34,11 +34,11 @@ cpm_norm_counts = cpm(norm_counts) %>% as.data.frame()
 cpm_norm_counts_con = cpm_norm_counts[, colnames_con]
 cpm_norm_counts_treat = cpm_norm_counts[, colnames_treat]
 
-cpm_features_con = data.frame(quantile_0.75 = apply(cpm_norm_counts_con, 1, quantile, 0.75, na.rm = T))
-cpm_features_treat = data.frame(quantile_0.75 = apply(cpm_norm_counts_treat, 1, quantile, 0.75, na.rm = T))
+cpm_features_con = data.frame(quantile_0.25 = apply(cpm_norm_counts_con, 1, quantile, 0.25, na.rm = T))
+cpm_features_treat = data.frame(quantile_0.25 = apply(cpm_norm_counts_treat, 1, quantile, 0.25, na.rm = T))
 
-cpm_features_con$rule_cpm_0.75_above_1 = cpm_features_con$quantile_0.75 > 1
-cpm_features_treat$rule_cpm_0.75_above_1 = cpm_features_treat$quantile_0.75 > 1
+cpm_features_con$rule_cpm_0.75_above_1 = cpm_features_con$quantile_0.25 > 1
+cpm_features_treat$rule_cpm_0.75_above_1 = cpm_features_treat$quantile_0.25 > 1
 
 cpm_feature = 
   data.frame(rule_cpm_0.75_above_1 = cpm_features_con$rule_cpm_0.75_above_1 | cpm_features_treat$rule_cpm_0.75_above_1, 
