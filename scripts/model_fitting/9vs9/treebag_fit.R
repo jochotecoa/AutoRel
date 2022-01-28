@@ -3,7 +3,7 @@ forceLibrary(c('mlbench', 'caret', 'doMC', 'dplyr', 'RANN'))
 # source('script/recursive_feature_elimination/load_data_treebage.R')
 forceLibrary(c('ipred', 'plyr', 'e1071')) # Needed for bagged trees
 
-apap_data = 'data/apap_hecatos/whole_dataset_labelled.rds' %>% readRDS()
+apap_data = apap_dataset_path %>% readRDS()
 colnames(apap_data)[ncol(apap_data)] = 'significance'
 
 index <- createDataPartition(apap_data$significance, p = 0.75, list = FALSE)
@@ -17,33 +17,29 @@ colnames(test_data) = colnames(test_data) %>%
 
 
 model_treebag <- caret::train(significance ~ .,
-                         data = train_data,
-                         method = "treebag",
-                         preProcess = c("scale", "center"),
-                         trControl = trainControl(method = "cv", 
-                                                  allowParallel = F, 
-                                                  verboseIter = TRUE))
+                               data = train_data,
+                               method = "treebag",
+                               preProcess = c("scale", "center"),
+                               trControl = trControl)
 
-if (!dir.exists('output/trained_models/apap_21vs21/treebag/')) {
-  dir.create('output/trained_models/apap_21vs21/treebag/', recursive = T)
+if (!dir.exists(paste0(train_mod_path, '/treebag/'))) {
+  dir.create(paste0(train_mod_path, '/treebag/', recursive = T))
 }
 
-model_treebag %>% saveRDS('output/trained_models/apap_21vs21/treebag/original.rds')
+model_treebag %>% saveRDS(paste0(train_mod_path, '/treebag/original.rds'))
 
 
 final <- data.frame(actual = test_data$significance,
-                    predict(model_treebag, newdata = test_data, type = "prob"))
-final$predict = final[-1] %>% apply(1, which.max)
-final$predict = names(final)[-1][final$predict]
-final$predict = final$predict %>% as.factor()
+                    predict(model_treebag, newdata = test_data))
+final$predict = final[, 2] %>% as.factor()
 
 cm_original <- confusionMatrix(final$predict, test_data$significance)
 
-if (!dir.exists('output/confusion_matrices/apap_21vs21/treebag/')) {
-  dir.create('output/confusion_matrices/apap_21vs21/treebag/', recursive = T)
+if (!dir.exists(paste0(conf_matr_path, '/treebag/'))) {
+  dir.create(paste0(conf_matr_path, '/treebag/', recursive = T))
 }
 
-# cm_over %>% saveRDS('output/confusion_matrices/apap_21vs21/treebag/over-sampling.rds')
-cm_original %>% saveRDS('output/confusion_matrices/apap_21vs21/treebag/original.rds')
-# cm_under %>% saveRDS('output/confusion_matrices/apap_21vs21/treebag/under-sampling.rds')
+# cm_over %>% saveRDS(paste0(conf_matr_path, '/treebag/over-sampling.rds')
+cm_original %>% saveRDS(paste0(conf_matr_path, '/treebag/original.rds'))
+# cm_under %>% saveRDS(paste0(conf_matr_path, '/treebag/under-sampling.rds')
 

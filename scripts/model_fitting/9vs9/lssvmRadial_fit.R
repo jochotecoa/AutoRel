@@ -5,41 +5,43 @@ registerDoMC(5)
 
 forceLibrary(c('kernlab')) # Needed for bagged trees
 
-apap_data = 'data/apap_hecatos/whole_dataset_labelled.rds' %>% 
-  readRDS()
+apap_data = apap_dataset_path %>% readRDS()
+colnames(apap_data)[ncol(apap_data)] = 'significance'
 
 index <- createDataPartition(apap_data$significance, p = 0.75, list = FALSE)
 train_data <- apap_data[index, ]
 test_data  <- apap_data[-index, ]
 
-
-
-# original ----------------------------------------------------------------
-
+colnames(train_data) = colnames(train_data) %>% 
+  make.names()
+colnames(test_data) = colnames(test_data) %>% 
+  make.names()
 
 
 model_lssvmRadial <- caret::train(significance ~ .,
                              data = train_data,
                              method = "lssvmRadial",
                              preProcess = c("scale", "center"),
-                             trControl = trainControl(method = "cv", 
-                                                      allowParallel = T, 
-                                                      verboseIter = TRUE))
-
-if (!dir.exists('output/trained_models/apap_21vs21/lssvmRadial/')) {
-  dir.create('output/trained_models/apap_21vs21/lssvmRadial/', recursive = T)
+                             trControl = trControl)
+train_mod_path
+if (!dir.exists(paste0(train_mod_path, '/lssvmRadial/'))) {
+  dir.create(paste0(train_mod_path, '/lssvmRadial/', recursive = T))
 }
 
-model_lssvmRadial %>% saveRDS('output/trained_models/apap_21vs21/lssvmRadial/original.rds')
+model_lssvmRadial %>% saveRDS(paste0(train_mod_path, '/lssvmRadial/original.rds'))
 
 
 final <- data.frame(actual = test_data$significance,
-                    predict = predict(model_lssvmRadial, newdata = test_data))
+                    predict(model_lssvmRadial, newdata = test_data))
+final$predict = final[, 2] %>% as.factor()
 
 cm_original <- confusionMatrix(final$predict, test_data$significance)
 
-if (!dir.exists('output/confusion_matrices/apap_21vs21/lssvmRadial/')) {
-  dir.create('output/confusion_matrices/apap_21vs21/lssvmRadial/', recursive = T)
+if (!dir.exists(paste0(conf_matr_path, '/lssvmRadial/'))) {
+  dir.create(paste0(conf_matr_path, '/lssvmRadial/', recursive = T))
 }
 
-cm_original %>% saveRDS('output/confusion_matrices/apap_21vs21/lssvmRadial/original.rds')
+# cm_over %>% saveRDS(paste0(conf_matr_path, '/lssvmRadial/over-sampling.rds')
+cm_original %>% saveRDS(paste0(conf_matr_path, '/lssvmRadial/original.rds'))
+# cm_under %>% saveRDS(paste0(conf_matr_path, '/lssvmRadial/under-sampling.rds')
+

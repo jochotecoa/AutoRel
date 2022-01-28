@@ -4,7 +4,7 @@ forceLibrary(c('mlbench', 'caret', 'doMC', 'dplyr', 'RANN'))
 # source('script/recursive_feature_elimination/load_data_pame.R')
 forceLibrary(c('pamr')) # Needed for bagged trees
 
-apap_data = 'data/apap_hecatos/whole_dataset_labelled.rds' %>% readRDS()
+apap_data = apap_dataset_path %>% readRDS()
 colnames(apap_data)[ncol(apap_data)] = 'significance'
 
 index <- createDataPartition(apap_data$significance, p = 0.75, list = FALSE)
@@ -18,18 +18,16 @@ colnames(test_data) = colnames(test_data) %>%
 
 
 model_pam <- caret::train(significance ~ .,
-                             data = train_data,
-                             method = "pam",
-                             preProcess = c("scale", "center"),
-                             trControl = trainControl(method = "cv", 
-                                                      allowParallel = F, 
-                                                      verboseIter = TRUE))
+                                  data = train_data,
+                                  method = "pam",
+                                  preProcess = c("scale", "center"),
+                                  trControl = trControl)
 
-if (!dir.exists('output/trained_models/apap_21vs21/pam/')) {
-  dir.create('output/trained_models/apap_21vs21/pam/', recursive = T)
+if (!dir.exists(paste0(train_mod_path, '/pam/'))) {
+  dir.create(paste0(train_mod_path, '/pam/', recursive = T))
 }
 
-model_pam %>% saveRDS('output/trained_models/apap_21vs21/pam/original.rds')
+model_pam %>% saveRDS(paste0(train_mod_path, '/pam/original.rds'))
 
 
 final <- data.frame(actual = test_data$significance,
@@ -38,11 +36,11 @@ final$predict = final[, 2] %>% as.factor()
 
 cm_original <- confusionMatrix(final$predict, test_data$significance)
 
-if (!dir.exists('output/confusion_matrices/apap_21vs21/pam/')) {
-  dir.create('output/confusion_matrices/apap_21vs21/pam/', recursive = T)
+if (!dir.exists(paste0(conf_matr_path, '/pam/'))) {
+  dir.create(paste0(conf_matr_path, '/pam/', recursive = T))
 }
 
-# cm_over %>% saveRDS('output/confusion_matrices/apap_21vs21/pam/over-sampling.rds')
-cm_original %>% saveRDS('output/confusion_matrices/apap_21vs21/pam/original.rds')
-# cm_under %>% saveRDS('output/confusion_matrices/apap_21vs21/pam/under-sampling.rds')
+# cm_over %>% saveRDS(paste0(conf_matr_path, '/pam/over-sampling.rds')
+cm_original %>% saveRDS(paste0(conf_matr_path, '/pam/original.rds'))
+# cm_under %>% saveRDS(paste0(conf_matr_path, '/pam/under-sampling.rds')
 

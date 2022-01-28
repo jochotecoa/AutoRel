@@ -4,8 +4,8 @@ forceLibrary(c('mlbench', 'caret', 'doMC', 'dplyr', 'RANN'))
 # source('script/recursive_feature_elimination/load_data_xgbDARTe.R')
 forceLibrary(c('xgboost', 'plyr')) # Needed for bagged trees
 
-apap_data = 'data/apap_hecatos/whole_dataset_labelled_9vs9.rds' %>% 
-  readRDS()
+apap_data = apap_dataset_path %>% readRDS()
+colnames(apap_data)[ncol(apap_data)] = 'significance'
 
 index <- createDataPartition(apap_data$significance, p = 0.75, list = FALSE)
 train_data <- apap_data[index, ]
@@ -18,33 +18,29 @@ colnames(test_data) = colnames(test_data) %>%
 
 
 model_xgbDART <- caret::train(significance ~ .,
-                                data = train_data,
-                                method = "xgbDART",
-                                preProcess = c("scale", "center"),
-                                trControl = trainControl(method = "cv", 
-                                                         allowParallel = F, 
-                                                         verboseIter = TRUE))
+                             data = train_data,
+                             method = "xgbDART",
+                             preProcess = c("scale", "center"),
+                             trControl = trControl)
 
-if (!dir.exists('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/xgbDART/')) {
-  dir.create('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/xgbDART/', recursive = T)
+if (!dir.exists(paste0(train_mod_path, '/xgbDART/'))) {
+  dir.create(paste0(train_mod_path, '/xgbDART/', recursive = T))
 }
 
-model_xgbDART %>% saveRDS('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/xgbDART/original.rds')
+model_xgbDART %>% saveRDS(paste0(train_mod_path, '/xgbDART/original.rds'))
 
 
 final <- data.frame(actual = test_data$significance,
-                    predict(model_xgbDART, newdata = test_data, type = "prob"))
-final$predict = final[-1] %>% apply(1, which.max)
-final$predict = names(final)[-1][final$predict]
-final$predict = final$predict %>% as.factor()
+                    predict(model_xgbDART, newdata = test_data))
+final$predict = final[, 2] %>% as.factor()
 
 cm_original <- confusionMatrix(final$predict, test_data$significance)
 
-if (!dir.exists('output/confusion_matrices/apap_9vs9/xgbDART/')) {
-  dir.create('output/confusion_matrices/apap_9vs9/xgbDART/', recursive = T)
+if (!dir.exists(paste0(conf_matr_path, '/xgbDART/'))) {
+  dir.create(paste0(conf_matr_path, '/xgbDART/', recursive = T))
 }
 
-# cm_over %>% saveRDS('output/confusion_matrices/apap_9vs9/xgbDART/over-sampling.rds')
-cm_original %>% saveRDS('output/confusion_matrices/apap_9vs9/xgbDART/original.rds')
-# cm_under %>% saveRDS('output/confusion_matrices/apap_9vs9/xgbDART/under-sampling.rds')
+# cm_over %>% saveRDS(paste0(conf_matr_path, '/xgbDART/over-sampling.rds')
+cm_original %>% saveRDS(paste0(conf_matr_path, '/xgbDART/original.rds'))
+# cm_under %>% saveRDS(paste0(conf_matr_path, '/xgbDART/under-sampling.rds')
 

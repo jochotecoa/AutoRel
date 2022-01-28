@@ -4,8 +4,8 @@ forceLibrary(c('mlbench', 'caret', 'doMC', 'dplyr', 'RANN'))
 # source('script/recursive_feature_elimination/load_data_rfe.R')
 forceLibrary(c('randomForest')) # Needed for bagged trees
 
-apap_data = 'data/apap_hecatos/whole_dataset_labelled_9vs9.rds' %>% 
-  readRDS()
+apap_data = apap_dataset_path %>% readRDS()
+colnames(apap_data)[ncol(apap_data)] = 'significance'
 
 index <- createDataPartition(apap_data$significance, p = 0.75, list = FALSE)
 train_data <- apap_data[index, ]
@@ -21,27 +21,26 @@ model_rf <- caret::train(significance ~ .,
                           data = train_data,
                           method = "rf",
                           preProcess = c("scale", "center"),
-                          trControl = trainControl(method = "cv", 
-                                                   allowParallel = F, 
-                                                   verboseIter = TRUE))
+                          trControl = trControl)
 
-if (!dir.exists('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/rf/')) {
-  dir.create('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/rf/', recursive = T)
+if (!dir.exists(paste0(train_mod_path, '/rf/'))) {
+  dir.create(paste0(train_mod_path, '/rf/', recursive = T))
 }
 
-model_rf %>% saveRDS('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/rf/original.rds')
+model_rf %>% saveRDS(paste0(train_mod_path, '/rf/original.rds'))
 
 
 final <- data.frame(actual = test_data$significance,
-                    predict = predict(model_rf, newdata = test_data))
+                    predict(model_rf, newdata = test_data))
+final$predict = final[, 2] %>% as.factor()
 
 cm_original <- confusionMatrix(final$predict, test_data$significance)
 
-if (!dir.exists('output/confusion_matrices/apap_9vs9/rf/')) {
-  dir.create('output/confusion_matrices/apap_9vs9/rf/', recursive = T)
+if (!dir.exists(paste0(conf_matr_path, '/rf/'))) {
+  dir.create(paste0(conf_matr_path, '/rf/', recursive = T))
 }
 
-# cm_over %>% saveRDS('output/confusion_matrices/apap_9vs9/rf/over-sampling.rds')
-cm_original %>% saveRDS('output/confusion_matrices/apap_9vs9/rf/original.rds')
-# cm_under %>% saveRDS('output/confusion_matrices/apap_9vs9/rf/under-sampling.rds')
+# cm_over %>% saveRDS(paste0(conf_matr_path, '/rf/over-sampling.rds')
+cm_original %>% saveRDS(paste0(conf_matr_path, '/rf/original.rds'))
+# cm_under %>% saveRDS(paste0(conf_matr_path, '/rf/under-sampling.rds')
 
