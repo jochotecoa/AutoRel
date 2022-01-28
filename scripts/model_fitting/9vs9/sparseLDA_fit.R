@@ -24,7 +24,7 @@ model_sparseLDA <- caret::train(significance ~ .,
                           trControl = trControl)
 
 if (!dir.exists(paste0(train_mod_path, '/sparseLDA/'))) {
-  dir.create(paste0(train_mod_path, '/sparseLDA/', recursive = T))
+  dir.create(paste0(train_mod_path, '/sparseLDA/'), recursive = T)
 }
 
 model_sparseLDA %>% saveRDS(paste0(train_mod_path, '/sparseLDA/original.rds'))
@@ -37,7 +37,7 @@ final$predict = final[, 2] %>% as.factor()
 cm_original <- confusionMatrix(final$predict, test_data$significance)
 
 if (!dir.exists(paste0(conf_matr_path, '/sparseLDA/'))) {
-  dir.create(paste0(conf_matr_path, '/sparseLDA/', recursive = T))
+  dir.create(paste0(conf_matr_path, '/sparseLDA/'), recursive = T)
 }
 
 # cm_over %>% saveRDS(paste0(conf_matr_path, '/sparseLDA/over-sampling.rds')

@@ -25,7 +25,7 @@ model_kknn <- caret::train(significance ~ .,
                              trControl = trControl)
 train_mod_path
 if (!dir.exists(paste0(train_mod_path, '/kknn/'))) {
-  dir.create(paste0(train_mod_path, '/kknn/', recursive = T))
+  dir.create(paste0(train_mod_path, '/kknn/'), recursive = T)
 }
 
 model_kknn %>% saveRDS(paste0(train_mod_path, '/kknn/original.rds'))
@@ -38,7 +38,7 @@ final$predict = final[, 2] %>% as.factor()
 cm_original <- confusionMatrix(final$predict, test_data$significance)
 
 if (!dir.exists(paste0(conf_matr_path, '/kknn/'))) {
-  dir.create(paste0(conf_matr_path, '/kknn/', recursive = T))
+  dir.create(paste0(conf_matr_path, '/kknn/'), recursive = T)
 }
 
 # cm_over %>% saveRDS(paste0(conf_matr_path, '/kknn/over-sampling.rds')

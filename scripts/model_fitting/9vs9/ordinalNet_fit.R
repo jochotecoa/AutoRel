@@ -24,7 +24,7 @@ model_ordinalNet <- caret::train(significance ~ .,
                          trControl = trControl)
 
 if (!dir.exists(paste0(train_mod_path, '/ordinalNet/'))) {
-  dir.create(paste0(train_mod_path, '/ordinalNet/', recursive = T))
+  dir.create(paste0(train_mod_path, '/ordinalNet/'), recursive = T)
 }
 
 model_ordinalNet %>% saveRDS(paste0(train_mod_path, '/ordinalNet/original.rds'))
@@ -37,7 +37,7 @@ final$predict = final[, 2] %>% as.factor()
 cm_original <- confusionMatrix(final$predict, test_data$significance)
 
 if (!dir.exists(paste0(conf_matr_path, '/ordinalNet/'))) {
-  dir.create(paste0(conf_matr_path, '/ordinalNet/', recursive = T))
+  dir.create(paste0(conf_matr_path, '/ordinalNet/'), recursive = T)
 }
 
 # cm_over %>% saveRDS(paste0(conf_matr_path, '/ordinalNet/over-sampling.rds')

@@ -24,7 +24,7 @@ model_multinom <- caret::train(significance ~ .,
                                 trControl = trControl)
 
 if (!dir.exists(paste0(train_mod_path, '/multinom/'))) {
-  dir.create(paste0(train_mod_path, '/multinom/', recursive = T))
+  dir.create(paste0(train_mod_path, '/multinom/'), recursive = T)
 }
 
 model_multinom %>% saveRDS(paste0(train_mod_path, '/multinom/original.rds'))
@@ -37,7 +37,7 @@ final$predict = final[, 2] %>% as.factor()
 cm_original <- confusionMatrix(final$predict, test_data$significance)
 
 if (!dir.exists(paste0(conf_matr_path, '/multinom/'))) {
-  dir.create(paste0(conf_matr_path, '/multinom/', recursive = T))
+  dir.create(paste0(conf_matr_path, '/multinom/'), recursive = T)
 }
 
 # cm_over %>% saveRDS(paste0(conf_matr_path, '/multinom/over-sampling.rds')

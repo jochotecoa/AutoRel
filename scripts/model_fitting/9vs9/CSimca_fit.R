@@ -24,7 +24,7 @@ model_CSimca <- caret::train(significance ~ .,
                              trControl = trControl)
 
 if (!dir.exists(paste0(train_mod_path, '/CSimca/'))) {
-  dir.create(paste0(train_mod_path, '/CSimca/', recursive = T))
+  dir.create(paste0(train_mod_path, '/CSimca/'), recursive = T)
 }
 
 model_CSimca %>% saveRDS(paste0(train_mod_path, '/CSimca/original.rds'))
@@ -37,7 +37,7 @@ final$predict = final[, 2] %>% as.factor()
 cm_original <- confusionMatrix(final$predict, test_data$significance)
 
 if (!dir.exists(paste0(conf_matr_path, '/CSimca/'))) {
-  dir.create(paste0(conf_matr_path, '/CSimca/', recursive = T))
+  dir.create(paste0(conf_matr_path, '/CSimca/'), recursive = T)
 }
 
 # cm_over %>% saveRDS(paste0(conf_matr_path, '/CSimca/over-sampling.rds')

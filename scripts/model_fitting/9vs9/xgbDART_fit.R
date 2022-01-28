@@ -24,7 +24,7 @@ model_xgbDART <- caret::train(significance ~ .,
                              trControl = trControl)
 
 if (!dir.exists(paste0(train_mod_path, '/xgbDART/'))) {
-  dir.create(paste0(train_mod_path, '/xgbDART/', recursive = T))
+  dir.create(paste0(train_mod_path, '/xgbDART/'), recursive = T)
 }
 
 model_xgbDART %>% saveRDS(paste0(train_mod_path, '/xgbDART/original.rds'))
@@ -37,7 +37,7 @@ final$predict = final[, 2] %>% as.factor()
 cm_original <- confusionMatrix(final$predict, test_data$significance)
 
 if (!dir.exists(paste0(conf_matr_path, '/xgbDART/'))) {
-  dir.create(paste0(conf_matr_path, '/xgbDART/', recursive = T))
+  dir.create(paste0(conf_matr_path, '/xgbDART/'), recursive = T)
 }
 
 # cm_over %>% saveRDS(paste0(conf_matr_path, '/xgbDART/over-sampling.rds')

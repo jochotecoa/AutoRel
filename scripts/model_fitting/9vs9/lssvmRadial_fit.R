@@ -25,7 +25,7 @@ model_lssvmRadial <- caret::train(significance ~ .,
                              trControl = trControl)
 train_mod_path
 if (!dir.exists(paste0(train_mod_path, '/lssvmRadial/'))) {
-  dir.create(paste0(train_mod_path, '/lssvmRadial/', recursive = T))
+  dir.create(paste0(train_mod_path, '/lssvmRadial/'), recursive = T)
 }
 
 model_lssvmRadial %>% saveRDS(paste0(train_mod_path, '/lssvmRadial/original.rds'))
@@ -38,7 +38,7 @@ final$predict = final[, 2] %>% as.factor()
 cm_original <- confusionMatrix(final$predict, test_data$significance)
 
 if (!dir.exists(paste0(conf_matr_path, '/lssvmRadial/'))) {
-  dir.create(paste0(conf_matr_path, '/lssvmRadial/', recursive = T))
+  dir.create(paste0(conf_matr_path, '/lssvmRadial/'), recursive = T)
 }
 
 # cm_over %>% saveRDS(paste0(conf_matr_path, '/lssvmRadial/over-sampling.rds')

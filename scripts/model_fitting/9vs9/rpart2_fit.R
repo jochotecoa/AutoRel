@@ -25,7 +25,7 @@ model_rpart2 <- caret::train(significance ~ .,
                               trControl = trControl)
 
 if (!dir.exists(paste0(train_mod_path, '/rpart2/'))) {
-  dir.create(paste0(train_mod_path, '/rpart2/', recursive = T))
+  dir.create(paste0(train_mod_path, '/rpart2/'), recursive = T)
 }
 
 model_rpart2 %>% saveRDS(paste0(train_mod_path, '/rpart2/original.rds'))
@@ -38,7 +38,7 @@ final$predict = final[, 2] %>% as.factor()
 cm_original <- confusionMatrix(final$predict, test_data$significance)
 
 if (!dir.exists(paste0(conf_matr_path, '/rpart2/'))) {
-  dir.create(paste0(conf_matr_path, '/rpart2/', recursive = T))
+  dir.create(paste0(conf_matr_path, '/rpart2/'), recursive = T)
 }
 
 # cm_over %>% saveRDS(paste0(conf_matr_path, '/rpart2/over-sampling.rds')

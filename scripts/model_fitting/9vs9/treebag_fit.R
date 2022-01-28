@@ -23,7 +23,7 @@ model_treebag <- caret::train(significance ~ .,
                                trControl = trControl)
 
 if (!dir.exists(paste0(train_mod_path, '/treebag/'))) {
-  dir.create(paste0(train_mod_path, '/treebag/', recursive = T))
+  dir.create(paste0(train_mod_path, '/treebag/'), recursive = T)
 }
 
 model_treebag %>% saveRDS(paste0(train_mod_path, '/treebag/original.rds'))
@@ -36,7 +36,7 @@ final$predict = final[, 2] %>% as.factor()
 cm_original <- confusionMatrix(final$predict, test_data$significance)
 
 if (!dir.exists(paste0(conf_matr_path, '/treebag/'))) {
-  dir.create(paste0(conf_matr_path, '/treebag/', recursive = T))
+  dir.create(paste0(conf_matr_path, '/treebag/'), recursive = T)
 }
 
 # cm_over %>% saveRDS(paste0(conf_matr_path, '/treebag/over-sampling.rds')

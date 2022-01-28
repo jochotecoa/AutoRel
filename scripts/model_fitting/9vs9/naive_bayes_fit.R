@@ -25,7 +25,7 @@ model_naive_bayes <- caret::train(significance ~ .,
                              trControl = trControl)
 train_mod_path
 if (!dir.exists(paste0(train_mod_path, '/naive_bayes/'))) {
-  dir.create(paste0(train_mod_path, '/naive_bayes/', recursive = T))
+  dir.create(paste0(train_mod_path, '/naive_bayes/'), recursive = T)
 }
 
 model_naive_bayes %>% saveRDS(paste0(train_mod_path, '/naive_bayes/original.rds'))
@@ -38,7 +38,7 @@ final$predict = final[, 2] %>% as.factor()
 cm_original <- confusionMatrix(final$predict, test_data$significance)
 
 if (!dir.exists(paste0(conf_matr_path, '/naive_bayes/'))) {
-  dir.create(paste0(conf_matr_path, '/naive_bayes/', recursive = T))
+  dir.create(paste0(conf_matr_path, '/naive_bayes/'), recursive = T)
 }
 
 # cm_over %>% saveRDS(paste0(conf_matr_path, '/naive_bayes/over-sampling.rds')
