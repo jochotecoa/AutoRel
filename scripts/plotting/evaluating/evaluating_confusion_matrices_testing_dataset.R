@@ -1,34 +1,36 @@
-for (path_model_i in list.files('output/confusion_matrices/apap_21vs21/', 
+for (path_cm_i in list.files('output/confusion_matrices/apap_9vs9/', 
                                 full.names = T, recursive = T, pattern = '.rds')) {
-  model_i_name = path_model_i %>% 
-    gsub('output/confusion_matrices/apap_21vs21//', '', .) %>% 
+  cm_i_name = path_cm_i %>% 
+    gsub('output/confusion_matrices/apap_9vs9//', '', .) %>% 
     gsub(pattern = '.rds', replacement = '', x = .) %>% 
     gsub(pattern = '\\/', replacement = '_', x = .) %>% 
     paste0(., '_cm')
   
-  model_i = path_model_i %>% readRDS()
-  assign(x = model_i_name, value = model_i)
+  cm_i = path_cm_i %>% readRDS()
+  assign(x = cm_i_name, value = cm_i)
   
-  acc_sig_nonsig = model_i$table['significant', 'significant'] / (model_i$table['nonsignificant', 'significant'] + model_i$table['significant', 'nonsignificant'] + model_i$table['significant', 'significant'])
+  # acc_sig_nonsig = cm_i$table['significant', 'significant'] / (cm_i$table['nonsignificant', 'significant'] + cm_i$table['significant', 'nonsignificant'] + cm_i$table['significant', 'significant'])
   
-  print(paste(model_i_name, acc_sig_nonsig))
+  print(paste(cm_i_name, 
+              cm_i$byClass['Class: significant','Balanced Accuracy'], 
+              mean(cm_i$byClass[,'Balanced Accuracy'])))
 }
 
 resample_results <- resamples(list(
-  BAM=bam_original_model,
-  CSimca=CSimca_original_model,
-  # KKNN=kknn_original_model,
-  lssvmRadial=lssvmRadial_original_model,
-  MULTINOM=multinom_original_model,
-  NAIVE_BAYES=naive_bayes_original_model,
-  ordinalNet=ordinalNet_original_model,
-  # RF=rf_model_rf_model,
-  # KKNN="rf_model_rf_over_model", 
-  # KKNN="rf_model_rf_under_model", 
-  # RPART2=rpart2_original_expressed_model 
-  sparseLDA=sparseLDA_original_model,
-  TREEBAG=treebag_original_model,
-  xgbDART=xgbDART_original_model
-  # RPART2=model_rpart2
+  BAM=bam_original_cm,
+  CSimca=CSimca_original_cm,
+  # KKNN=kknn_original_cm,
+  lssvmRadial=lssvmRadial_original_cm,
+  MULTINOM=multinom_original_cm,
+  NAIVE_BAYES=naive_bayes_original_cm,
+  ordinalNet=ordinalNet_original_cm,
+  # RF=rf_cm_rf_cm,
+  # KKNN="rf_cm_rf_over_cm", 
+  # KKNN="rf_cm_rf_under_cm", 
+  # RPART2=rpart2_original_expressed_cm 
+  sparseLDA=sparseLDA_original_cm,
+  TREEBAG=treebag_original_cm,
+  xgbDART=xgbDART_original_cm
+  # RPART2=cm_rpart2
 )
 )
