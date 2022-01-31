@@ -27,4 +27,15 @@ source('scripts/model_fitting/xgbDART_fit.R')
 
 
 
-source('scripts/model_fitting/9vs9/treebag_fit_all_features.R')
+source('scripts/model_fitting/9vs9/rf_fit_all_features.R')
+
+
+source('scripts/model_fitting/9vs9/rf_fit_over_undersampling.R')
+
+source('scripts/model_fitting/9vs9/rfe_rf.R')
+
+source('scripts/model_fitting/9vs9/rf_random_search.R')
+
+source('scripts/model_fitting/9vs9/rf_fit_all_features_oversampling.R')
+
+source('scripts/model_fitting/9vs9/rf_rfe_all_features.R')

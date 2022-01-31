@@ -11,9 +11,12 @@ for (path_cm_i in list.files('output/confusion_matrices/apap_9vs9/',
   
   # acc_sig_nonsig = cm_i$table['significant', 'significant'] / (cm_i$table['nonsignificant', 'significant'] + cm_i$table['significant', 'nonsignificant'] + cm_i$table['significant', 'significant'])
   
-  print(paste(cm_i_name, 
-              cm_i$byClass['Class: significant','Balanced Accuracy'], 
-              mean(cm_i$byClass[,'Balanced Accuracy'])))
+  print(cm_i_name)
+  
+  cm_i$byClass[, 1:4] %>% naToZero %>% rowMeans %>% print
+  
+  readline(prompt = "Press [enter] to continue")
+  
 }
 
 resample_results <- resamples(list(
