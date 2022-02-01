@@ -19,7 +19,7 @@ removeOutliers <- function(x) {
 
 # manual_degs = readRDS(file = 'data/apap_hecatos/manual_degs_apap_hecatos.rds')
 
-norm_counts = 'data/apap_hecatos/norm_counts_9vs9_deseq2_apap_hecatos.rds' %>% readRDS
+norm_counts = norm_counts_path %>% readRDS
 
 colnames_con = subset(x = colnames(norm_counts), 
                       grepl('ConDMSO', colnames(norm_counts)))
@@ -402,7 +402,7 @@ end_time = Sys.time()
 print(spuspi_time - end_time)
 
 
-norm_counts_features %>% saveRDS('data/apap_hecatos/norm_counts_features_9vs9.rds')
+norm_counts_features %>% saveRDS(norm_counts_features_path)
 
 
 # norm_counts_treat_4 = norm_counts_treat_4[, !grepl('nonexpressed', colnames(norm_counts_treat_4))]
