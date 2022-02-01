@@ -14,11 +14,6 @@ removeOutliers <- function(x) {
 
 # Input data --------------------------------------------------------------
 
-
-# res = readRDS(file = 'data/apap_hecatos/results_dds_deseq2_apap_hecatos.rds')
-
-# manual_degs = readRDS(file = 'data/apap_hecatos/manual_degs_apap_hecatos.rds')
-
 norm_counts = norm_counts_path %>% readRDS
 
 colnames_con = subset(x = colnames(norm_counts), 
@@ -225,9 +220,10 @@ stopifnot(identical(rownames(norm_counts_con_4), rownames(norm_counts_treat_4)))
 norm_counts_4 = norm_counts_con_4 %>% 
   cbind.data.frame(norm_counts_treat_4)
 
-raw_counts = norm_counts = DESeq2::counts(object = dds, normalized = F)
-cpm_counts = 
-  norm_counts_features = norm_counts_4[, !grepl('ConDMSO_|APA_The_', 
+
+# raw_counts <- DESeq2::counts(object = dds, normalized = F)
+# cpm_counts = 
+norm_counts_features = norm_counts_4[, !grepl('ConDMSO_|APA_The_', 
                                                 colnames(norm_counts_4))]
 
 dupl_cols = norm_counts_features %>% t %>% duplicated

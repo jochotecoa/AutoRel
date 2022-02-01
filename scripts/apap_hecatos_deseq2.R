@@ -50,12 +50,14 @@ dir.create(method_dir, recursive = T)
 
 norm_counts = DESeq2::counts(object = dds, normalized = T)
 dir.create('data/apap_hecatos')
-saveRDS(object = norm_counts, file = 'data/apap_hecatos/norm_counts_deseq2_apap_hecatos.rds')
+saveRDS(object = norm_counts, file = 'data/apap_hecatos/norm_counts_deseq2_apap_hecatos_21vs21.rds')
 
 
 res <- results(dds, contrast = c("conditions","APA_The","ConDMSO"))
 
-saveRDS(object = res, file = 'data/apap_hecatos/results_dds_deseq2_apap_hecatos.rds')
+saveRDS(object = res, file = 'data/apap_hecatos/results_dds_deseq2_apap_hecatos_21vs21.rds')
+
+saveRDS(object = dds, file = 'data/apap_hecatos/dds_deseq2_apap_hecatos_21vs21.rds')
 
 # Barplotting -------------------------------------------------------------
 
