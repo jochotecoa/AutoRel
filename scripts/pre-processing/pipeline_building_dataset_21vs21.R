@@ -16,11 +16,11 @@ manual_annot_path = 'data/apap_hecatos/manual_annot_apap_hecatos_21vs21.rds'
 manual_degs_path = 'data/apap_hecatos/manual_degs_apap_hecatos_21vs21.rds'
 source('scripts/pre-processing/generate_database_manual_degs_21vs21.R')
 
-deseq2_dataset_path = 'data/apap_hecatos/deseq2_dataset.rds'
-deseq2_dataset_unlabelled_path = 'data/apap_hecatos/deseq2_dataset_unlabelled.rds'
+deseq2_dataset_path = 'data/apap_hecatos/deseq2_dataset_21vs21.rds'
+deseq2_dataset_unlabelled_path = 'data/apap_hecatos/deseq2_dataset_unlabelled_21vs21.rds'
 source('scripts/pre-processing/merge_features_with_target.R')
 
 
-deseq2_dataset_2_path = 'data/apap_hecatos/whole_dataset_preprocessed_labelled_21vs21.rds'
+deseq2_dataset_2_path = 'data/apap_hecatos/dataset_preprocessed_apap_21vs21.rds'
 source('scripts/pre-processing/pre-processing.R')
 

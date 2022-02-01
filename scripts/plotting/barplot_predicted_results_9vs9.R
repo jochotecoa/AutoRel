@@ -4,9 +4,9 @@ forceLibrary(c('biomaRt', "tximport", "dplyr", "grid", "ggplot2",
 
 
 res = 
-  readRDS(file = 'data/apap_hecatos/results_dds_9vs9_deseq2_apap_hecatos.rds')
+  readRDS(file = 'data/apap_hecatos/results_dds_deseq2_apap_hecatos_9vs9.rds')
 norm_counts = 
-  readRDS(file = 'data/apap_hecatos/norm_counts_9vs9_deseq2_apap_hecatos.rds')
+  readRDS(file = 'data/apap_hecatos/norm_counts_deseq2_apap_hecatos_9vs9.rds')
 deseq2_nonlablld_dataset = 
   readRDS(file = 'data/apap_hecatos/deseq2_nonlablld_dataset.rds')
 deseq2_features_all =
@@ -58,14 +58,14 @@ colnames(deseq2_features_subs) = colnames(deseq2_features_subs) %>%
 # Convert all logical variables to numerical
 deseq2_features_subs[sapply(deseq2_features_subs, is.logical)] = deseq2_features_subs[sapply(deseq2_features_subs, is.logical)] %>% sapply(as.numeric)
 
-model_kknn = readRDS('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/kknn/original.rds')
+model_rf = readRDS('/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9/rf/original.rds')
 
 deseq2_features_subs = 
-  deseq2_features_subs[, colnames(deseq2_features_subs) %in% model_kknn$coefnames]
+  deseq2_features_subs[, colnames(deseq2_features_subs) %in% model_rf$coefnames]
 
 
 unlabelled_predicted <- data.frame(predict = 
-                                     predict(model_kknn, 
+                                     predict(model_rf, 
                                              newdata = 
                                                deseq2_features_subs), 
                                    row.names = 
@@ -78,8 +78,14 @@ unlabelled_predicted = cbind(unlabelled_predicted, deseq2_features_all)
 #   row.names()
   
 
+unlabelled_predicted_subs = unlabelled_predicted %>% 
+  dplyr::filter(
+    predict == 'significant'
+)
+
+
 # gene_ids = res2[order(res2$padj, decreasing = T),] %>% rownames()
-gene_ids = unlabelled_predicted %>%
+gene_ids = unlabelled_predicted_subs %>%
   rownames() %>% sort() 
 
 gene_id_i = grep("ENSG00000159459", gene_ids)
