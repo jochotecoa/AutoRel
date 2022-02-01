@@ -1,6 +1,8 @@
 
 norm_counts_path = 'data/apap_hecatos/norm_counts_deseq2_apap_hecatos_21vs21.rds'
 norm_counts_features_path = 'data/apap_hecatos/norm_counts_features_21vs21.rds'
+dds_path = 'data/apap_hecatos/dds_deseq2_apap_hecatos_21vs21.rds'
+
 source('scripts/pre-processing/deriving_features_from_normalized_counts.R')
 
 res_dds_path = 'data/apap_hecatos/results_dds_deseq2_apap_hecatos_21vs21.rds'
@@ -18,4 +20,7 @@ deseq2_dataset_path = 'data/apap_hecatos/deseq2_dataset.rds'
 deseq2_dataset_unlabelled_path = 'data/apap_hecatos/deseq2_dataset_unlabelled.rds'
 source('scripts/pre-processing/merge_features_with_target.R')
 
+
+deseq2_dataset_2_path = 'data/apap_hecatos/whole_dataset_preprocessed_labelled_21vs21.rds'
+source('scripts/pre-processing/pre-processing.R')
 

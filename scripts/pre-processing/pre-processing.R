@@ -4,7 +4,7 @@ forceLibrary(c('biomaRt', "tximport", "dplyr", "grid", "ggplot2",
 
 forceLibrary('caret')
 
-deseq2_dataset = readRDS(file = 'data/apap_hecatos/deseq2_dataset.rds')
+deseq2_dataset = readRDS(file = deseq2_dataset_path)
 
 deseq2_dataset = deseq2_dataset[deseq2_dataset$baseMean > 0, ]
 
@@ -91,20 +91,20 @@ ncol(X)
 deseq2_dataset_2 = cbind.data.frame(X, Y) %>% 
   na.omit()
 colnames(deseq2_dataset_2)[ncol(deseq2_dataset_2)] = 'significance'
-Y = deseq2_dataset_2['significance']
-X = deseq2_dataset_2[-ncol(deseq2_dataset_2)]
-normalization <- preProcess(X, verbose = T, method = c("center", "scale"))
-X_c_s <- predict(normalization, X) %>%
-  as.data.frame()
+# Y = deseq2_dataset_2['significance']
+# X = deseq2_dataset_2[-ncol(deseq2_dataset_2)]
+# normalization <- preProcess(X, verbose = T, method = c("center", "scale"))
+# X_c_s <- predict(normalization, X) %>%
+#   as.data.frame()
 
 
-normalization_notproc <- preProcess(X_notproc, verbose = T, method = c("center", "scale"))
-X_notproc_cnt_scl <- predict(normalization_notproc, X_notproc) %>%
-  as.data.frame()
-
-saveRDS(object = X, file = 'data/apap_hecatos/whole_data_preds.rds')
-saveRDS(object = X_c_s, file = 'data/apap_hecatos/whole_data_centered_scaled_preds.rds')
-saveRDS(object = X_notproc_cnt_scl, file = 'data/apap_hecatos/whole_data_unpreprocessed_centered_scaled_preds.rds')
-saveRDS(object = Y, file = 'data/apap_hecatos/whole_data_target.rds')
-saveRDS(object = deseq2_dataset_2, 'data/apap_hecatos/whole_dataset_labelled.rds')
+# normalization_notproc <- preProcess(X_notproc, verbose = T, method = c("center", "scale"))
+# X_notproc_cnt_scl <- predict(normalization_notproc, X_notproc) %>%
+#   as.data.frame()
+# 
+# saveRDS(object = X, file = 'data/apap_hecatos/whole_data_preds_21vs21.rds')
+# saveRDS(object = X_c_s, file = 'data/apap_hecatos/whole_data_centered_scaled_preds_21vs21.rds')
+# saveRDS(object = X_notproc_cnt_scl, file = 'data/apap_hecatos/whole_data_unpreprocessed_centered_scaled_preds_21vs21.rds')
+# saveRDS(object = Y, file = 'data/apap_hecatos/whole_data_target_21vs21.rds')
+saveRDS(object = deseq2_dataset_2, deseq2_dataset_2_path)
 
