@@ -1,7 +1,7 @@
-for (path_cm_i in list.files('output/confusion_matrices/apap_9vs9/', 
+for (path_cm_i in list.files('output/confusion_matrices/apap_21vs21/', 
                                 full.names = T, recursive = T, pattern = '.rds')) {
   cm_i_name = path_cm_i %>% 
-    gsub('output/confusion_matrices/apap_9vs9//', '', .) %>% 
+    gsub('output/confusion_matrices/apap_21vs21//', '', .) %>% 
     gsub(pattern = '.rds', replacement = '', x = .) %>% 
     gsub(pattern = '\\/', replacement = '_', x = .) %>% 
     paste0(., '_cm')
@@ -15,7 +15,7 @@ for (path_cm_i in list.files('output/confusion_matrices/apap_9vs9/',
   
   cm_i$byClass[, 1:4] %>% naToZero %>% rowMeans %>% print
   
-  # readline(prompt = "Press [enter] to continue")
+  readline(prompt = "Press [enter] to continue")
   
 }
 

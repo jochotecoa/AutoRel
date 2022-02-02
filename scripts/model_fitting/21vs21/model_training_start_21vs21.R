@@ -1,6 +1,7 @@
 source('scripts/functions/functions_JOA.R')
 forceLibrary(c('mlbench', 'caret', 'doMC', 'dplyr', 'RANN'))
 
+registerDoMC(5)
 
 apap_dataset_path = 'data/apap_hecatos/dataset_preprocessed_apap_21vs21.rds'
 
@@ -54,4 +55,15 @@ print(xgb_t - bam_t)
 
 
 
-source('scripts/model_fitting/21vs21/treebag_fit_all_features.R')
+source('scripts/model_fitting/21vs21/rf_fit_all_features.R')
+
+
+source('scripts/model_fitting/21vs21/rf_fit_over_undersampling.R')
+
+source('scripts/model_fitting/21vs21/rfe_rf.R')
+
+source('scripts/model_fitting/21vs21/rf_random_search.R')
+
+source('scripts/model_fitting/21vs21/rf_fit_all_features_oversampling.R')
+
+source('scripts/model_fitting/21vs21/rf_rfe_all_features.R')
