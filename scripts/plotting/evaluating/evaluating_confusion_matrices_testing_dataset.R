@@ -13,9 +13,9 @@ for (path_cm_i in list.files('output/confusion_matrices/apap_9vs9/',
   
   print(cm_i_name)
   
-  cm_i$byClass[, 1:4] %>% naToZero %>% rowMeans %>% print
+  cm_i$byClass['Class: significant', 1:4] %>% naToZero %>% print
   
-  # readline(prompt = "Press [enter] to continue")
+  readline(prompt = "Press [enter] to continue")
   
 }
 

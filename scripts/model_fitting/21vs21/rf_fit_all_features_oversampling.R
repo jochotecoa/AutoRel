@@ -3,7 +3,7 @@ forceLibrary(c('mlbench', 'caret', 'doMC', 'dplyr', 'RANN', 'tibble'))
 # source('script/recursive_feature_elimination/load_data_rf_all_featse.R')
 forceLibrary(c('randomForest')) # Needed for bagged trees
 
-apap_dataset_path = 'data/apap_hecatos/deseq2_dataset_9vs9.rds'
+apap_dataset_path = 'data/apap_hecatos/deseq2_dataset_21vs21.rds'
 
 trControl = trainControl(method = "cv", 
                          allowParallel = T, 
@@ -33,7 +33,7 @@ model_rf_all_feats_ovrsmplng <- caret::train(significance ~ .,
                                preProcess = c("scale", "center"),
                                trControl = trControl)
 
-train_mod_path = '/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9'
+train_mod_path = '/ngs-data-2/analysis/juan/autosign/trained_models/apap_21vs21'
 if (!dir.exists(paste0(train_mod_path, '/rf/all_features_oversampling'))) {
   dir.create(paste0(train_mod_path, '/rf/all_features_oversampling'), recursive = T)
 }

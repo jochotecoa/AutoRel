@@ -226,8 +226,8 @@ norm_counts_4 = norm_counts_con_4 %>%
 norm_counts_features = norm_counts_4[, !grepl('ConDMSO_|APA_The_', 
                                                 colnames(norm_counts_4))]
 
-dupl_cols = norm_counts_features %>% t %>% duplicated
-norm_counts_features = norm_counts_features[, !dupl_cols]
+# dupl_cols = norm_counts_features %>% t %>% duplicated
+# norm_counts_features = norm_counts_features[, !dupl_cols]
 
 
 feature_names = colnames(norm_counts_features) %>% 

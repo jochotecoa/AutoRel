@@ -19,7 +19,7 @@ removeOutliers <- function(x) {
 
 # manual_degs = readRDS(file = 'data/apap_hecatos/manual_degs_apap_hecatos.rds')
 
-norm_counts = 'data/apap_hecatos/norm_counts_9vs9_deseq2_apap_hecatos.rds' %>% readRDS
+norm_counts = 'data/apap_hecatos/norm_counts_deseq2_apap_hecatos_9vs9.rds' %>% readRDS
 
 colnames_con = subset(x = colnames(norm_counts), 
                       grepl('ConDMSO', colnames(norm_counts)))

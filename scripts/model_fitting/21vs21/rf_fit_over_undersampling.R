@@ -2,10 +2,10 @@ source('scripts/functions/functions_JOA.R')
 forceLibrary(c('mlbench', 'caret', 'doMC', 'dplyr', 'RANN'))
 
 
-apap_dataset_path = 'data/apap_hecatos/whole_dataset_labelled_9vs9.rds'
+apap_dataset_path = 'data/apap_hecatos/whole_dataset_labelled_21vs21.rds'
 
-train_mod_path = '/ngs-data-2/analysis/juan/autosign/trained_models/apap_9vs9'
-conf_matr_path = 'output/confusion_matrices/apap_9vs9'
+train_mod_path = '/ngs-data-2/analysis/juan/autosign/trained_models/apap_21vs21'
+conf_matr_path = 'output/confusion_matrices/apap_21vs21'
 
 registerDoMC(5)
 

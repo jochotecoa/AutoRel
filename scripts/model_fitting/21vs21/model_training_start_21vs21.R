@@ -54,7 +54,7 @@ xgb_t = Sys.time()
 print(xgb_t - bam_t)
 
 
-
+apap_dataset_path = 'data/apap_hecatos/deseq2_dataset_21vs21.rds'
 source('scripts/model_fitting/21vs21/rf_fit_all_features.R')
 
 

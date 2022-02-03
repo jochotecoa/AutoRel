@@ -3,7 +3,6 @@ forceLibrary(c('mlbench', 'caret', 'doMC', 'dplyr', 'RANN', 'tibble'))
 # source('script/recursive_feature_elimination/load_data_rf_all_featse.R')
 forceLibrary(c('randomForest')) # Needed for bagged trees
 
-apap_dataset_path = 'data/apap_hecatos/deseq2_dataset_21vs21.rds'
 
 trControl = trainControl(method = "cv", 
                          allowParallel = T, 
@@ -36,7 +35,6 @@ model_rf_all_feats <- caret::train(significance ~ .,
                                preProcess = c("scale", "center"),
                                trControl = trControl)
 
-train_mod_path = '/ngs-data-2/analysis/juan/autosign/trained_models/apap_21vs21'
 if (!dir.exists(paste0(train_mod_path, '/rf/all_features'))) {
   dir.create(paste0(train_mod_path, '/rf/all_features'), recursive = T)
 }
@@ -44,20 +42,21 @@ if (!dir.exists(paste0(train_mod_path, '/rf/all_features'))) {
 model_rf_all_feats %>% saveRDS(paste0(train_mod_path, '/rf/all_features.rds'))
 
 
-final <- data.frame(actual = test_data$significance,
-                    predict(model_rf_all_feats, newdata = test_data))
-final$predict = final[, 2] %>% as.factor()
+predictions_test_data <- data.frame(obs = test_data$significance,
+                                    pred = predict(model_rf_all_feats, 
+                                                   newdata = test_data))
 
-cm_original <- confusionMatrix(final$predict, test_data$significance)
+cm_all_features <- confusionMatrix(predictions_test_data$pred, 
+                               predictions_test_data$obs)
 
 if (!dir.exists(paste0(conf_matr_path, '/rf/all_features'))) {
   dir.create(paste0(conf_matr_path, '/rf/all_features'), recursive = T)
 }
 
 # cm_over %>% saveRDS(paste0(conf_matr_path, '/rf/all_featuresover-sampling.rds')
-cm_original %>% saveRDS(paste0(conf_matr_path, '/rf/all_features.rds'))
+cm_all_features %>% saveRDS(paste0(conf_matr_path, '/rf/all_features.rds'))
 # cm_under %>% saveRDS(paste0(conf_matr_path, '/rf/all_featuresunder-sampling.rds')
 
 
-print(cm_original$byClass['Class: significant', 'Balanced Accuracy'])
-cm_original$byClass[, 1:4] %>% rowMeans()
+print(cm_all_features$byClass['Class: significant', 'Balanced Accuracy'])
+cm_all_features$byClass[, 1:4] %>% rowMeans()
