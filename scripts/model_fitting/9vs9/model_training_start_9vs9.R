@@ -27,7 +27,7 @@ source('scripts/model_fitting/xgbDART_fit.R')
 
 
 
-source('scripts/model_fitting/9vs9/rf_fit_all_features.R')
+source('scripts/model_fitting/rfe/rf_rfe.R')
 
 
 source('scripts/model_fitting/9vs9/rf_fit_over_undersampling.R')

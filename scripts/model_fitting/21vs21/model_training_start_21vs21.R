@@ -53,17 +53,10 @@ source('scripts/model_fitting/xgbDART_fit.R')
 xgb_t = Sys.time() 
 print(xgb_t - bam_t)
 
-
-apap_dataset_path = 'data/apap_hecatos/deseq2_dataset_21vs21.rds'
-source('scripts/model_fitting/21vs21/rf_fit_all_features.R')
+source('scripts/model_fitting/rfe/rf_rfe.R')
 
 
 source('scripts/model_fitting/21vs21/rf_fit_over_undersampling.R')
 
-source('scripts/model_fitting/21vs21/rfe_rf.R')
-
 source('scripts/model_fitting/21vs21/rf_random_search.R')
 
-source('scripts/model_fitting/21vs21/rf_fit_all_features_oversampling.R')
-
-source('scripts/model_fitting/21vs21/rf_rfe_all_features.R')

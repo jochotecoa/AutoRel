@@ -241,6 +241,16 @@ for (feature_name in feature_names) {
   
   stopifnot(ncol(norm_counts_feature) == 2)
   
+  sum_all = norm_counts_feature %>% 
+    colSums(na.rm=T) %>% 
+    sum(na.rm=T)
+  
+  if (sum_all == 0) {
+    norm_counts_features[, paste0('foldchange_', feature_name)] = 
+      0
+    next()
+  }
+  
   pseudocount = min(norm_counts_feature[norm_counts_feature > 0], na.rm = T) * 0.1
   
   norm_counts_feature = norm_counts_feature + pseudocount
