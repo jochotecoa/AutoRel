@@ -44,7 +44,7 @@ deseq2_features_subs = deseq2_dataset_all %>%
   column_to_rownames('ensembl_gene_id')  %>% 
   dplyr::filter(
     # `onequartilediff_rule` == T,
-    `quartilediff_score` == -1,
+    `quartilediff_score` == 9,
     # padj < 1
     )
 
@@ -55,7 +55,7 @@ gene_id_i = grep("ENSG00000185559", gene_ids)
 gene_id_f = length(gene_ids)
 
 
-for (gene_id in gene_ids) { # [gene_id_i:gene_id_f]
+for (gene_id in gene_ids[1:6]) { # [gene_id_i:gene_id_f]
   
   
   

@@ -2,7 +2,7 @@
 
 # Putting final results toguether -----------------------------------------
 
-deseq2_features_all = readRDS(file = 'data/apap_hecatos/deseq2_features_all_9vs9.rds')
+deseq2_features_all = readRDS(file = 'data/apap_hecatos/deseq2_features_all_3vs3.rds')
 
 
 
@@ -70,7 +70,7 @@ stopifnot(ncol(manual_degs) == 2)
 manual_degs = manual_degs %>% 
   na.omit()
 
-manual_annot = 'data/apap_hecatos/predicted_manually_curated_genes_9vs9.csv' %>% 
+manual_annot = 'data/apap_hecatos/predicted_manually_curated_genes_3vs3.csv' %>% 
   read.csv(header = F)
 
 colnames(manual_annot) = colnames(manual_degs)
@@ -80,5 +80,5 @@ manual_degs = rbind(manual_annot, manual_degs)
 manual_degs = manual_degs[!duplicated(manual_degs$ensembl_gene_id), ]
 
 
-saveRDS(object = manual_degs, file = 'data/apap_hecatos/manual_degs_apap_hecatos_9vs9.rds')
+saveRDS(object = manual_degs, file = 'data/apap_hecatos/manual_degs_apap_hecatos_3vs3.rds')
 
