@@ -1,3 +1,7 @@
+source('scripts/functions/functions_JOA.R')
+forceLibrary(c('mlbench', 'caret', 'doMC', 'dplyr', 'RANN'))
+
+
 for (path_cm_i in list.files('output/confusion_matrices/apap_9vs9/', 
                                 full.names = T, recursive = T, pattern = '.rds')) {
   cm_i_name = path_cm_i %>% 
@@ -13,7 +17,7 @@ for (path_cm_i in list.files('output/confusion_matrices/apap_9vs9/',
   
   print(cm_i_name)
   
-  cm_i$byClass['Class: significant', 1:4] %>% naToZero %>% print
+  cm_i$byClass[, 1:4] %>% naToZero %>% rowMeans() %>% print
   
   readline(prompt = "Press [enter] to continue")
   

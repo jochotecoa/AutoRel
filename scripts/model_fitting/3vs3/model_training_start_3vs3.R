@@ -2,7 +2,8 @@ source('scripts/functions/functions_JOA.R')
 forceLibrary(c('mlbench', 'caret', 'doMC', 'dplyr', 'RANN'))
 
 
-apap_dataset_path = 'data/apap_hecatos/whole_dataset_labelled_3vs3.rds'
+apap_dataset_path = 'data/apap_hecatos/dataset_preprocessed_apap_3vs3.rds'
+
 
 trControl = trainControl(method = "cv", 
                          allowParallel = F, 
@@ -25,7 +26,7 @@ source('scripts/model_fitting/ordinalNet_fit.R')
 source('scripts/model_fitting/bam_fit.R')
 source('scripts/model_fitting/xgbDART_fit.R')
 
-
+source('scripts/plotting/evaluating/evaluating_confusion_matrices_testing_dataset.R')
 
 rfe_path = paste0(train_mod_path, '/rf/rf_rfe.rds')
 source('scripts/model_fitting/rfe/rf_rfe.R')

@@ -66,7 +66,7 @@ conf_matr_path = 'output/confusion_matrices/apap_21vs21/after_rfe/'
 source('scripts/model_fitting/rf_fit.R')
 
 
-source('scripts/model_fitting/rf_fit_over_undersampling.R')
+source('scripts/model_fitting/over_under_sampling/rf_fit_over_undersampling.R')
 
-source('scripts/model_fitting/rf_fit_oversampling_randomsearch.R')
+source('scripts/model_fitting/over_under_sampling/rf_fit_oversampling_randomsearch.R')
 

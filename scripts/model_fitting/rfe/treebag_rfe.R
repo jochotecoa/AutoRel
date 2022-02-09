@@ -17,27 +17,26 @@ train_data <- apap_data[index, ]
 test_data  <- apap_data[-index, ]
 
 
-rf_rfe <- rfe(significance ~ .,
+treebag_rfe <- rfe(significance ~ .,
                         data = train_data,
-                        method = "rf",
+                        method = "treebag",
                         sizes = seq(10, ncol(train_data), 10),
                         preProcess = c("scale", "center"),
-                        rfeControl = rfeControl(functions = rfFuncs, 
+                        rfeControl = rfeControl(functions = treebagFuncs, 
                                                 verbose = T, 
                                                 method = "cv", 
                                                 allowParallel = T)
                         ## pass options to train()
 )
 
-saveRDS(rf_rfe, rfe_path)
+saveRDS(treebag_rfe, rfe_path)
 
 pred_test_data_rfe <- data.frame(actual = test_data$significance,
-                                           predict(rf_rfe, newdata = test_data))
+                                           predict(treebag_rfe, newdata = test_data))
 
 pred_test_data_rfe$predict = pred_test_data_rfe[, 2] %>% as.factor()
 
 cm_rfe <- confusionMatrix(pred_test_data_rfe$predict, test_data$significance)
-
 
 cm_rfe %>% saveRDS(conf_matr_rfe_path)
 
