@@ -54,6 +54,8 @@ xgb_t = Sys.time()
 print(xgb_t - bam_t)
 
 rfe_path = paste0(train_mod_path, '/rf/rf_rfe.rds')
+conf_matr_rfe_path = paste0(conf_matr_path, '/rf/rf_rfe.rds')
+
 source('scripts/model_fitting/rfe/rf_rfe.R')
 
 apap_data_min_feats_path = 'data/apap_hecatos/dataset_labelled_X_features_21vs21.rds'
@@ -65,6 +67,7 @@ conf_matr_path = 'output/confusion_matrices/apap_21vs21/after_rfe/'
 
 source('scripts/model_fitting/rf_fit.R')
 
+cm_original$byClass[, 1:4] %>% naToZero %>% rowMeans()
 
 source('scripts/model_fitting/over_under_sampling/rf_fit_over_undersampling.R')
 

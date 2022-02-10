@@ -2,12 +2,12 @@ source('scripts/functions/functions_JOA.R')
 forceLibrary(c('biomaRt', "tximport", "dplyr", "grid", "ggplot2", 
                "pheatmap", "BiocParallel", 'tibble', 'edgeR'))
 
-
-deseq2_dataset_all_path = 'data/apap_hecatos/deseq2_features_all_3vs3.rds'
 norm_counts_path = 'data/apap_hecatos/norm_counts_deseq2_apap_hecatos_3vs3.rds'
 
-deseq2_dataset_all = deseq2_dataset_all_path %>% 
+deseq2_nonlablld_dataset = 
+  'data/apap_hecatos/deseq2_dataset_unlabelled_3vs3.rds' %>% 
   readRDS()
+
 
 norm_counts = norm_counts_path %>% 
   readRDS()
@@ -33,16 +33,43 @@ cts_treatment = norm_counts %>%
 #   unlist()
 
 
-deseq2_features_subs = deseq2_dataset_all %>%
+deseq2_features_subs = deseq2_nonlablld_dataset %>%
   remove_rownames() %>%
   column_to_rownames('ensembl_gene_id')  %>% 
   dplyr::filter(
     # `onequartilediff_rule` == T,
-    `quartilediff_score` == 9,
+    `quartilediff_score` == -9,
     # padj < 1
     )
 
-gene_ids = deseq2_features_subs %>% 
+colnames(deseq2_features_subs) = colnames(deseq2_features_subs) %>% 
+  make.names()
+
+# Convert all logical variables to numerical
+deseq2_features_subs[sapply(deseq2_features_subs, is.logical)] = deseq2_features_subs[sapply(deseq2_features_subs, is.logical)] %>% sapply(as.numeric)
+
+model_rf = readRDS('/ngs-data-2/analysis/juan/autosign/trained_models/apap_3vs3/rf/original.rds')
+
+deseq2_features_subs = 
+  deseq2_features_subs[, colnames(deseq2_features_subs) %in% model_rf$coefnames]
+
+
+unlabelled_predicted <- data.frame(predict = 
+                                     predict(model_rf, 
+                                             newdata = 
+                                               deseq2_features_subs), 
+                                   row.names = 
+                                     row.names(deseq2_features_subs))
+
+
+
+unlabelled_predicted = cbind(unlabelled_predicted, deseq2_features_subs)
+
+
+
+
+
+gene_ids = unlabelled_predicted %>% 
   rownames()
 
 gene_id_i = grep("ENSG00000185559", gene_ids)
@@ -53,7 +80,7 @@ for (gene_id in gene_ids[1:6]) { # [gene_id_i:gene_id_f]
   
   
   
-  padjv = deseq2_features_subs[gene_id, 'padj'] 
+  padjv = unlabelled_predicted[gene_id, 'padj'] 
   
   contr_cols = grep('ConDMSO', colnames(norm_counts))
   treatm_cols = grep('APA_The', colnames(norm_counts))
@@ -68,11 +95,11 @@ for (gene_id in gene_ids[1:6]) { # [gene_id_i:gene_id_f]
             main = paste(gene_id, 
                          '; padj = ', format(padjv, scientific = T, digits = 3),
                          'cpm_rule:', 
-                         deseq2_features_subs[gene_id, 'rule_cpm_0.75_above_1'],
-                         deseq2_features_subs[gene_id, 'onequartilediff_rule'],
-                         deseq2_features_subs[gene_id, 'twoquartilediff_rule'],
-                         deseq2_features_subs[gene_id, 'threequartilediff_rule'],
-                         deseq2_features_subs[gene_id, 'fourquartilediff_rule']
+                         unlabelled_predicted[gene_id, 'rule_cpm_0.75_above_1'],
+                         unlabelled_predicted[gene_id, 'predict'],
+                         unlabelled_predicted[gene_id, 'twoquartilediff_rule'],
+                         unlabelled_predicted[gene_id, 'threequartilediff_rule'],
+                         unlabelled_predicted[gene_id, 'fourquartilediff_rule']
                          )
             )
   
@@ -91,7 +118,7 @@ for (gene_id in gene_ids[1:6]) { # [gene_id_i:gene_id_f]
 
 for (gene_id in gene_ids) { # [gene_id_i:gene_id_f]
   
-  padjv = deseq2_features_subs[gene_id, 'padj'] 
+  padjv = unlabelled_predicted[gene_id, 'padj'] 
   
   contr_cols = grep('ConDMSO', colnames(norm_counts))
   treatm_cols = grep('APA_The', colnames(norm_counts))
