@@ -187,8 +187,11 @@ countOutliers <- function(x, na.rm = T, ...) {
   return(y)
 }
 
-norm_counts_con_4$N_outliers = norm_counts_con_4[, colnames_con] %>% 
-  apply(1, countOutliers)
+norm_counts_con_4$interquantile_range = norm_counts_con_4['quantile_75%'] - norm_counts_con_4['quantile_25%']
+norm_counts_con_4$interquantile_range = norm_counts_con_4[, colnames_con] < norm_counts_con_4['quantile_25%'] - norm_counts_con_4['quantile_25%']
+y < q1 - 1.5*iq(x) | y > q3 + 1.5*iq(x)
+
+
 norm_counts_con_4$Proportion_outliers = 
   norm_counts_con_4$N_outliers / con_length
 norm_counts_con_4$N_extreme_outliers = norm_counts_con_4[, colnames_con] %>% 
@@ -228,7 +231,7 @@ norm_counts_4 = norm_counts_con_4 %>%
 # raw_counts <- DESeq2::counts(object = dds, normalized = F)
 # cpm_counts = 
 norm_counts_features = norm_counts_4[, !grepl('ConDMSO_|APA_The_', 
-                                                colnames(norm_counts_4))]
+                                              colnames(norm_counts_4))]
 
 # dupl_cols = norm_counts_features %>% t %>% duplicated
 # norm_counts_features = norm_counts_features[, !dupl_cols]
@@ -354,9 +357,9 @@ norm_counts_features$fourquartilediff_rule = fourquartilediff_rule
 
 
 quartilediff_score = (q1belmin + q2belq1 + q3belq2 + maxbelq3 + 
-  q2belmin + q3belq1 + maxbelq2 + 
-  q3belmin + maxbelq1 + 
-  maxbelmin) -
+                        q2belmin + q3belq1 + maxbelq2 + 
+                        q3belmin + maxbelq1 + 
+                        maxbelmin) -
   (minavoq1 + q1avoq2 + q2avoq3 + q3avomax +
      minavoq2 + q1avoq3 + q2avomax + 
      minavoq3 + q1avomax + 
