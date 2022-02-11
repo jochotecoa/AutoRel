@@ -43,7 +43,7 @@ X_under = X[c(dub_rows, nonsign_rows_under, sign_rows_under), , F]
 
 # Pre-processing ----------------------------------------------------------
 # Zero- and Near Zero-Variance Predictors
-ncol(X) 
+i_cols = ncol(X)
 
 # freqCut = sum(Y == 'nonsignificant')/sum(Y != 'nonsignificant')
 nzv_m_under <- nearZeroVar(X_under, saveMetrics = T)
@@ -58,10 +58,12 @@ if (length(nzv_feats) > 0) {
   
 }
 
+nzv_cols = ncol(X)
+print(paste(i_cols - nzv_cols, 'features filtered due to NZV'))
 # Identifying Correlated Predictors ---------------------------------------
 
 
-ncol(X)
+
 
 descrCor <- cor(na.omit(X_under))
 highlyCor <- findCorrelation(descrCor, cutoff = .99)
@@ -73,6 +75,9 @@ if (length(highlyCor) > 0) {
 }
 
 
+corr_cols = ncol(X)
+print(paste(nzv_cols - corr_cols, 'features filtered due to correlation'))
+
 # Linear Dependencies
 ncol(X)
 
@@ -83,7 +88,10 @@ if (length(comboInfo$remove) > 0) {
 }
 
 X = X %>% as.data.frame()
-ncol(X)
+
+lp_cols = ncol(X)
+print(paste(corr_cols - lp_cols, 'features filtered due to linear dependencies'))
+
 
 # Data splitting ----------------------------------------------------------
 
