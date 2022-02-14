@@ -4,13 +4,17 @@ forceLibrary(c('mlbench', 'caret', 'doMC', 'dplyr', 'RANN'))
 
 apap_dataset_path = 'data/apap_hecatos/dataset_preprocessed_apap_3_9_21.rds'
 
-
 trControl = trainControl(method = "cv", 
                          allowParallel = T, 
                          verboseIter = TRUE)
 
 train_mod_path = '/ngs-data-2/analysis/juan/autosign/trained_models/apap_3_9_21'
 conf_matr_path = 'output/confusion_matrices/apap_3_9_21'
+
+source('scripts/model_fitting/split_data_train_test_3_9_21.R')
+
+train_data = 'data/apap_hecatos/dataset_for_3_9_21_training_testing/apap_dataset_3_9_21_train_data.rds'
+test_data = 'data/apap_hecatos/dataset_for_3_9_21_training_testing/apap_dataset_3_9_21_test_data.rds'
 
 source('scripts/model_fitting/CSimca_fit.R')
 source('scripts/model_fitting/naive_bayes_fit.R')

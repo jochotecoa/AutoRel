@@ -8,9 +8,11 @@ forceLibrary(c('naivebayes')) # Needed for bagged trees
 apap_data = apap_dataset_path %>% readRDS()
 colnames(apap_data)[ncol(apap_data)] = 'significance'
 
-index <- createDataPartition(apap_data$significance, p = 0.75, list = FALSE)
-train_data <- apap_data[index, ]
-test_data  <- apap_data[-index, ]
+if (!exists('train_data') | !exists('test_data')) {
+  index <- createDataPartition(apap_data$significance, p = 0.75, list = FALSE)
+  train_data <- apap_data[index, ]
+  test_data  <- apap_data[-index, ]
+}
 
 colnames(train_data) = colnames(train_data) %>% 
   make.names()
