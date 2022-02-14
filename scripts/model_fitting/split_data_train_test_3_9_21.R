@@ -20,12 +20,12 @@ apap_dataset_3_test_data %>% saveRDS('data/apap_hecatos/dataset_for_3_9_21_train
 apap_dataset_9_index <- createDataPartition(apap_dataset_9$significance, p = 0.75, list = FALSE)
 apap_dataset_9_train_data <- apap_dataset_9[apap_dataset_9_index, ]
 apap_dataset_9_test_data  <- apap_dataset_9[-apap_dataset_9_index, ]
-apap_dataset_3_test_data %>% saveRDS('data/apap_hecatos/dataset_for_3_9_21_training_testing/apap_dataset_9_test_data.rds')
+apap_dataset_9_test_data %>% saveRDS('data/apap_hecatos/dataset_for_3_9_21_training_testing/apap_dataset_9_test_data.rds')
 
 apap_dataset_21_index <- createDataPartition(apap_dataset_21$significance, p = 0.75, list = FALSE)
 apap_dataset_21_train_data <- apap_dataset_21[apap_dataset_21_index, ]
 apap_dataset_21_test_data  <- apap_dataset_21[-apap_dataset_21_index, ]
-apap_dataset_3_test_data %>% saveRDS('data/apap_hecatos/dataset_for_3_9_21_training_testing/apap_dataset_21_test_data.rds')
+apap_dataset_21_test_data %>% saveRDS('data/apap_hecatos/dataset_for_3_9_21_training_testing/apap_dataset_21_test_data.rds')
 
 
 apap_dataset_train_data = rbind.data.frame(
@@ -33,7 +33,7 @@ apap_dataset_train_data = rbind.data.frame(
   apap_dataset_9_train_data,
   apap_dataset_21_train_data
 )
-apap_dataset_3_test_data %>% saveRDS('data/apap_hecatos/dataset_for_3_9_21_training_testing/apap_dataset_3_9_21_train_data.rds')
+apap_dataset_train_data %>% saveRDS('data/apap_hecatos/dataset_for_3_9_21_training_testing/apap_dataset_3_9_21_train_data.rds')
 
 
 apap_dataset_test_data = rbind.data.frame(
@@ -41,4 +41,4 @@ apap_dataset_test_data = rbind.data.frame(
   apap_dataset_9_test_data,
   apap_dataset_21_test_data
 )
-apap_dataset_3_test_data %>% saveRDS('data/apap_hecatos/dataset_for_3_9_21_training_testing/apap_dataset_3_9_21_test_data.rds')
+apap_dataset_test_data %>% saveRDS('data/apap_hecatos/dataset_for_3_9_21_training_testing/apap_dataset_3_9_21_test_data.rds')
