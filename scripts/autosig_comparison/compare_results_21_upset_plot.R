@@ -20,8 +20,6 @@ dataset_21[sapply(dataset_21, is.logical)] =
 
 table(model_treebag$coefnames %in% colnames(dataset_21))
 
-r_odaf_degs = 'data/r_odaf/Output/R-ODAF_APAP_21_DESeq2_RNA-Seq_APA_vs_ConDMSO_FDR_0.01_DEG_table.txt' %>% 
-  read.table()
 
 
 pred_21 <- data.frame(pred = predict(model_treebag, newdata = dataset_21))
@@ -36,28 +34,30 @@ dataset_21$fdr_0.05_l2fc_1.5 = (dataset_21$padj < 0.05) & (abs(dataset_21$log2Fo
 dataset_21$fdr_0.01 = dataset_21$padj < 0.01
 dataset_21$fdr_0.01_l2fc_1.5 = (dataset_21$padj < 0.01) & (abs(dataset_21$log2FoldChange) > 1.5)
 
+r_odaf_degs = 'data/r_odaf/Output/R-ODAF_APAP_21_DESeq2_RNA-Seq_APA_vs_ConDMSO_FDR_0.01_DEG_table.txt' %>% 
+  read.table() %>% 
+  row.names()
 
-dataset_21$r_odaf = (dataset_21$rule_cpm_0.75_above_1 + 
-                       (dataset_21$padj < 0.01) + 
-                       abs(dataset_21$spurious_spikes - 1) + 
-                       dataset_21$q1avoq2 + dataset_21$q3belq2) == 4
+dataset_21$r_odaf = dataset_21$ensembl_gene_id %in% r_odaf_degs
 
 dataset_21$relevant = dataset_21$pred == 'significant'
 
 
 library(UpSetR)
-a = dataset_21[, c('fdr_0.05', 'fdr_0.05_l2fc_1.5', 'fdr_0.01', 'fdr_0.01_l2fc_1.5', 'r_odaf', 'relevant')]
-a = a %>% 
+degs_df = dataset_21[, c('fdr_0.05', 'fdr_0.05_l2fc_1.5', 'fdr_0.01', 'fdr_0.01_l2fc_1.5', 'r_odaf', 'relevant')]
+degs_df = degs_df %>% 
   apply(2, as.integer) %>% 
   as.data.frame()
 
-upset(a, 
-      nsets = ncol(a),
+upset(degs_df, 
+      nsets = ncol(degs_df),
       order.by='freq', 
       decreasing = T, 
       mb.ratio = c(0.6, 0.4),
       number.angles = 0, 
-      text.scale = 2, 
+      text.scale = c(2, 2, 2, 1, 2, 2), #c(intersection size title, intersection
+                          # size tick labels, set size title, set size tick labels, set
+                          # names, numbers above bars)
       point.size = 2.8, 
       line.size = 1)
 
