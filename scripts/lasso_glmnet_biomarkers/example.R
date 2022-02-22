@@ -1,3 +1,9 @@
+
+# Check paper: LASSO and Bioinformatics Analysis in the Identification of Key 
+# Genes for Prognostic Genes of Gynecologic Cancer 
+# https://www.mdpi.com/2075-4426/11/11/1177/htm
+
+library(glmnet)
 set.seed(1010)
 n = 1000
 p = 100
@@ -10,5 +16,5 @@ cv.lasso = cv.glmnet(x, ly, family = "binomial")
 plot(cv.lasso)
 cat('Min Lambda: ', cv.lasso$lambda.min, '\n 1Sd Lambda: ', cv.lasso$lambda.1se)
 # df_coef <- round(as.matrix(coef(cv.lasso, s=cv.lasso$lambda.min)), 2)
-coeficients_best_lambda = as.matrix(coef(cv.lasso, s=cv.lasso$lambda.min))
+coeficients_best_lambda = as.matrix(coef(cv.lasso, s = cv.lasso$lambda.min))
 important_variables = a[a != 0,]
