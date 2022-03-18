@@ -49,7 +49,7 @@ gene_id_i = grep("ENSG00000185559", gene_ids)
 gene_id_f = length(gene_ids)
 
 
-for (gene_id in gene_ids[1:6]) { # [gene_id_i:gene_id_f]
+for (gene_id in gene_ids) { # [gene_id_i:gene_id_f]
   
   
   
