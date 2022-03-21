@@ -281,22 +281,22 @@ q1belmin = norm_counts_features['quantile_25%_ConDMSO'] < norm_counts_features['
 q2belq1 = norm_counts_features['quantile_50%_ConDMSO'] < norm_counts_features['quantile_25%_APA_The']
 q3belq2 = norm_counts_features['quantile_75%_ConDMSO'] < norm_counts_features['quantile_50%_APA_The']
 maxbelq3 = norm_counts_features['quantile_100%_ConDMSO'] < norm_counts_features['quantile_75%_APA_The']
-minavoq1 = norm_counts_features['quantile_0%_ConDMSO'] > norm_counts_features['quantile_25%_APA_The']
-q1avoq2 = norm_counts_features['quantile_25%_ConDMSO'] > norm_counts_features['quantile_50%_APA_The']
-q2avoq3 = norm_counts_features['quantile_50%_ConDMSO'] > norm_counts_features['quantile_75%_APA_The']
-q3avomax = norm_counts_features['quantile_75%_ConDMSO'] > norm_counts_features['quantile_100%_APA_The']
+minaboq1 = norm_counts_features['quantile_0%_ConDMSO'] > norm_counts_features['quantile_25%_APA_The']
+q1aboq2 = norm_counts_features['quantile_25%_ConDMSO'] > norm_counts_features['quantile_50%_APA_The']
+q2aboq3 = norm_counts_features['quantile_50%_ConDMSO'] > norm_counts_features['quantile_75%_APA_The']
+q3abomax = norm_counts_features['quantile_75%_ConDMSO'] > norm_counts_features['quantile_100%_APA_The']
 
 norm_counts_features$q1belmin = q1belmin
 norm_counts_features$q2belq1 = q2belq1
 norm_counts_features$q3belq2 = q3belq2
 norm_counts_features$maxbelq3 = maxbelq3
-norm_counts_features$minavoq1 = minavoq1
-norm_counts_features$q1avoq2 = q1avoq2
-norm_counts_features$q2avoq3 = q2avoq3
-norm_counts_features$q3avomax = q3avomax
+norm_counts_features$minaboq1 = minaboq1
+norm_counts_features$q1aboq2 = q1aboq2
+norm_counts_features$q2aboq3 = q2aboq3
+norm_counts_features$q3abomax = q3abomax
 
 onequartilediff_rule = as.logical(q1belmin + q2belq1 + q3belq2 + maxbelq3 + 
-                                    minavoq1 + q1avoq2 + q2avoq3 + q3avomax)
+                                    minaboq1 + q1aboq2 + q2aboq3 + q3abomax)
 
 norm_counts_features$onequartilediff_rule = onequartilediff_rule
 
@@ -305,19 +305,19 @@ norm_counts_features$onequartilediff_rule = onequartilediff_rule
 q2belmin = norm_counts_features['quantile_50%_ConDMSO'] < norm_counts_features['quantile_0%_APA_The']
 q3belq1 = norm_counts_features['quantile_75%_ConDMSO'] < norm_counts_features['quantile_25%_APA_The']
 maxbelq2 = norm_counts_features['quantile_100%_ConDMSO'] < norm_counts_features['quantile_50%_APA_The']
-minavoq2 = norm_counts_features['quantile_0%_ConDMSO'] > norm_counts_features['quantile_50%_APA_The']
-q1avoq3 = norm_counts_features['quantile_25%_ConDMSO'] > norm_counts_features['quantile_75%_APA_The']
-q2avomax = norm_counts_features['quantile_50%_ConDMSO'] > norm_counts_features['quantile_100%_APA_The']
+minaboq2 = norm_counts_features['quantile_0%_ConDMSO'] > norm_counts_features['quantile_50%_APA_The']
+q1aboq3 = norm_counts_features['quantile_25%_ConDMSO'] > norm_counts_features['quantile_75%_APA_The']
+q2abomax = norm_counts_features['quantile_50%_ConDMSO'] > norm_counts_features['quantile_100%_APA_The']
 
 norm_counts_features$q2belmin = q2belmin
 norm_counts_features$q3belq1 = q3belq1
 norm_counts_features$maxbelq2 = maxbelq2
-norm_counts_features$minavoq2 = minavoq2
-norm_counts_features$q1avoq3 = q1avoq3
-norm_counts_features$q2avomax = q2avomax
+norm_counts_features$minaboq2 = minaboq2
+norm_counts_features$q1aboq3 = q1aboq3
+norm_counts_features$q2abomax = q2abomax
 
 twoquartilediff_rule = as.logical(q2belmin + q3belq1 + maxbelq2 + 
-                                    minavoq2 + q1avoq3 + q2avomax)
+                                    minaboq2 + q1aboq3 + q2abomax)
 
 norm_counts_features$twoquartilediff_rule = twoquartilediff_rule
 
@@ -325,29 +325,29 @@ norm_counts_features$twoquartilediff_rule = twoquartilediff_rule
 
 q3belmin = norm_counts_features['quantile_75%_ConDMSO'] < norm_counts_features['quantile_0%_APA_The']
 maxbelq1 = norm_counts_features['quantile_100%_ConDMSO'] < norm_counts_features['quantile_25%_APA_The']
-minavoq3 = norm_counts_features['quantile_0%_ConDMSO'] > norm_counts_features['quantile_75%_APA_The']
-q1avomax = norm_counts_features['quantile_25%_ConDMSO'] > norm_counts_features['quantile_100%_APA_The']
+minaboq3 = norm_counts_features['quantile_0%_ConDMSO'] > norm_counts_features['quantile_75%_APA_The']
+q1abomax = norm_counts_features['quantile_25%_ConDMSO'] > norm_counts_features['quantile_100%_APA_The']
 
 norm_counts_features$q3belmin = q3belmin
 norm_counts_features$maxbelq1 = maxbelq1
-norm_counts_features$minavoq3 = minavoq3
-norm_counts_features$q1avomax = q1avomax
+norm_counts_features$minaboq3 = minaboq3
+norm_counts_features$q1abomax = q1abomax
 
 threequartilediff_rule = as.logical(q3belmin + maxbelq1 + 
-                                      minavoq3 + q1avomax)
+                                      minaboq3 + q1abomax)
 
 norm_counts_features$threequartilediff_rule = threequartilediff_rule
 
 
 
 maxbelmin = norm_counts_features['quantile_100%_ConDMSO'] < norm_counts_features['quantile_0%_APA_The']
-minavomax = norm_counts_features['quantile_0%_ConDMSO'] > norm_counts_features['quantile_100%_APA_The']
+minabomax = norm_counts_features['quantile_0%_ConDMSO'] > norm_counts_features['quantile_100%_APA_The']
 
 norm_counts_features$maxbelmin = maxbelmin
-norm_counts_features$minavomax = minavomax
+norm_counts_features$minabomax = minabomax
 
 fourquartilediff_rule = as.logical(maxbelmin +
-                                     minavomax)
+                                     minabomax)
 
 norm_counts_features$fourquartilediff_rule = fourquartilediff_rule
 
@@ -357,10 +357,10 @@ quartilediff_score = (q1belmin + q2belq1 + q3belq2 + maxbelq3 +
   q2belmin + q3belq1 + maxbelq2 + 
   q3belmin + maxbelq1 + 
   maxbelmin) -
-  (minavoq1 + q1avoq2 + q2avoq3 + q3avomax +
-     minavoq2 + q1avoq3 + q2avomax + 
-     minavoq3 + q1avomax + 
-     minavomax)
+  (minaboq1 + q1aboq2 + q2aboq3 + q3abomax +
+     minaboq2 + q1aboq3 + q2abomax + 
+     minaboq3 + q1abomax + 
+     minabomax)
 
 norm_counts_features$quartilediff_score = quartilediff_score
 
