@@ -6,10 +6,10 @@ registerDoMC(5)
 forceLibrary(c('kknn')) # Needed for bagged trees
 
 apap_data = apap_dataset_path %>% readRDS()
-colnames(apap_data)[ncol(apap_data)] = 'significance'
+colnames(apap_data)[ncol(apap_data)] = 'relevance'
 
 if (!exists('train_data') | !exists('test_data')) {
-  index <- createDataPartition(apap_data$significance, p = 0.75, list = FALSE)
+  index <- createDataPartition(apap_data$relevance, p = 0.75, list = FALSE)
   train_data <- apap_data[index, ]
   test_data  <- apap_data[-index, ]
 }
@@ -20,7 +20,7 @@ colnames(test_data) = colnames(test_data) %>%
   make.names()
 
 
-model_kknn <- caret::train(significance ~ .,
+model_kknn <- caret::train(relevance ~ .,
                              data = train_data,
                              method = "kknn",
                              preProcess = c("scale", "center"),
@@ -33,11 +33,11 @@ if (!dir.exists(paste0(train_mod_path, '/kknn/'))) {
 model_kknn %>% saveRDS(paste0(train_mod_path, '/kknn/original.rds'))
 
 
-final <- data.frame(actual = test_data$significance,
+final <- data.frame(actual = test_data$relevance,
                     predict(model_kknn, newdata = test_data))
 final$predict = final[, 2] %>% as.factor()
 
-cm_original <- confusionMatrix(final$predict, test_data$significance)
+cm_original <- confusionMatrix(final$predict, test_data$relevance)
 
 if (!dir.exists(paste0(conf_matr_path, '/kknn/'))) {
   dir.create(paste0(conf_matr_path, '/kknn/'), recursive = T)

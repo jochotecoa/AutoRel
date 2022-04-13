@@ -5,10 +5,10 @@ forceLibrary(c('mlbench', 'caret', 'doMC', 'dplyr', 'RANN'))
 forceLibrary(c('mgcv')) # Needed for bagged trees
 
 apap_data = apap_dataset_path %>% readRDS()
-colnames(apap_data)[ncol(apap_data)] = 'significance'
+colnames(apap_data)[ncol(apap_data)] = 'relevance'
 
 if (!exists('train_data') | !exists('test_data')) {
-  index <- createDataPartition(apap_data$significance, p = 0.75, list = FALSE)
+  index <- createDataPartition(apap_data$relevance, p = 0.75, list = FALSE)
   train_data <- apap_data[index, ]
   test_data  <- apap_data[-index, ]
 }
@@ -20,7 +20,7 @@ colnames(test_data) = colnames(test_data) %>%
   make.names()
 
 
-model_bam <- caret::train(significance ~ .,
+model_bam <- caret::train(relevance ~ .,
                               data = train_data,
                               method = "bam",
                               preProcess = c("scale", "center"),
@@ -33,11 +33,11 @@ if (!dir.exists(paste0(train_mod_path, '/bam/'))) {
 model_bam %>% saveRDS(paste0(train_mod_path, '/bam/original.rds'))
 
 
-final <- data.frame(actual = test_data$significance,
+final <- data.frame(actual = test_data$relevance,
                     predict(model_bam, newdata = test_data))
 final$predict = final[, 2] %>% as.factor()
 
-cm_original <- confusionMatrix(final$predict, test_data$significance)
+cm_original <- confusionMatrix(final$predict, test_data$relevance)
 
 if (!dir.exists(paste0(conf_matr_path, '/bam/'))) {
   dir.create(paste0(conf_matr_path, '/bam/'), recursive = T)

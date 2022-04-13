@@ -5,10 +5,10 @@ forceLibrary(c('mlbench', 'caret', 'doMC', 'dplyr', 'RANN'))
 forceLibrary(c('kernlab')) # Needed for bagged trees
 
 apap_data = 'data/apap_hecatos/whole_dataset_labelled.rds' %>% readRDS()
-colnames(apap_data)[ncol(apap_data)] = 'significance'
+colnames(apap_data)[ncol(apap_data)] = 'relevance'
 
 if (!exists('train_data') | !exists('test_data')) {
-  index <- createDataPartition(apap_data$significance, p = 0.75, list = FALSE)
+  index <- createDataPartition(apap_data$relevance, p = 0.75, list = FALSE)
   train_data <- apap_data[index, ]
   test_data  <- apap_data[-index, ]
 }
@@ -19,7 +19,7 @@ colnames(test_data) = colnames(test_data) %>%
   make.names()
 
 
-model_gaussprLinear <- caret::train(significance ~ .,
+model_gaussprLinear <- caret::train(relevance ~ .,
                                 data = train_data,
                                 method = "gaussprLinear",
                                 preProcess = c("scale", "center"),
@@ -34,13 +34,13 @@ if (!dir.exists('output/trained_models/apap_21vs21/gaussprLinear/')) {
 model_gaussprLinear %>% saveRDS('output/trained_models/apap_21vs21/gaussprLinear/original.rds')
 
 
-final <- data.frame(actual = test_data$significance,
+final <- data.frame(actual = test_data$relevance,
                     predict(model_gaussprLinear, newdata = test_data, type = "prob"))
 final$predict = final[-1] %>% apply(1, which.max)
 final$predict = names(final)[-1][final$predict]
 final$predict = final$predict %>% as.factor()
 
-cm_original <- confusionMatrix(final$predict, test_data$significance)
+cm_original <- confusionMatrix(final$predict, test_data$relevance)
 
 if (!dir.exists('output/confusion_matrices/apap_21vs21/gaussprLinear/')) {
   dir.create('output/confusion_matrices/apap_21vs21/gaussprLinear/', recursive = T)
