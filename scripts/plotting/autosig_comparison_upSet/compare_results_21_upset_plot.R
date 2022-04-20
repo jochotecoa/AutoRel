@@ -1,8 +1,8 @@
 source('scripts/functions/functions_JOA.R')
 forceLibrary(c('mlbench', 'caret', 'doMC', 'dplyr', 'RANN'))
 
-train_mod_path = '/ngs-data-2/analysis/juan/autosign/trained_models/apap_3_9_21'
-conf_matr_path = 'output/confusion_matrices/apap_3_9_21'
+train_mod_path = '/ngs-data-2/analysis/juan/autosign/trained_models/apap_3_9_21/significant_labels'
+conf_matr_path = 'output/confusion_matrices/apap_3_9_21/significant_labels'
 
 model_treebag = readRDS(paste0(train_mod_path, '/treebag/original.rds'))
 
