@@ -52,23 +52,6 @@ coldata = coldata_group
 coldata$Group = factor(coldata$Group, levels = unique(coldata$Group)[2:1])
 coldata$Group %>% levels() %>% .[1]
 
-source('scripts/simulated_dataset/deseq2.R')
 
-res %<>% as.data.frame() %>% 
-  rownames_to_column()
-rowdata %<>% rownames_to_column()
-
-res_rowdata = merge.data.frame(res, rowdata, 'rowname')
-
-res_rowdata$significant = res_rowdata$padj < 0.05 
-res_rowdata$significant %<>% as.factor()
-res_rowdata$DE.ind %<>% as.factor()
-
-confusionMatrix(res_rowdata$DE.ind, res_rowdata$significant)
-
-norm_counts_path = 'data/simulated_data/50R/norm_counts.csv'
-norm_counts_features_path = 'data/simulated_data/50R/norm_counts_features.csv'
-
-write.csv(file = norm_counts_path, x = norm_counts)
 
 
