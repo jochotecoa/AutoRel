@@ -1,12 +1,17 @@
 
-conf_matr_all_df = data.frame()
 
-n_replicates = 10
+n_replicates = 100
 
+
+library('progress')
 ## ETA
 pb <- progress_bar$new(
   format = "  downloading [:bar] :percent eta: :eta",
   total = n_replicates, clear = FALSE, width= 60)
+
+conf_matr_all_df = data.frame()
+conf_matr_all_sign_df = data.frame()
+
 for (i in seq_len(n_replicates)) {
   pb$tick()
   
@@ -89,6 +94,26 @@ for (i in seq_len(n_replicates)) {
   
   conf_matr_all_df = conf_matr_all_df %>% 
     rbind.data.frame(conf_matr_df)
+  
+  
+  
+  
+  overall_sign_df = conf_matr_sign$overall %>% 
+    as.data.frame() %>% 
+    t
+  
+  byClass_sign_df = conf_matr_sign$byClass %>% 
+    as.data.frame() %>% 
+    t
+  
+  
+  conf_matr_sign_df = cbind.data.frame(overall_sign_df, byClass_sign_df)
+  rownames(conf_matr_sign_df) = i
+  
+  conf_matr_all_sign_df = conf_matr_all_sign_df %>% 
+    rbind.data.frame(conf_matr_sign_df)
+  
+  
 }
 
 

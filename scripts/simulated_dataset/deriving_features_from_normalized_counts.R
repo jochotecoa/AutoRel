@@ -31,7 +31,7 @@ time_i = Sys.time()
 
 # CPM rule ----------------------------------------------------------------
 cpm_time = Sys.time()
-
+print('Calculating CPM rule...')
 cpm_norm_counts = cpm(norm_counts) %>% as.data.frame()
 cpm_norm_counts_con = cpm_norm_counts[, colnames_con]
 cpm_norm_counts_treat = cpm_norm_counts[, colnames_treat]
@@ -65,6 +65,7 @@ treat_length = ncol(norm_counts_treat)
 # Mean, SD, and Var -------------------------------------------------------
 meansdvar_time = Sys.time()
 print(cpm_time - meansdvar_time)
+print('Calculating Mean, SD, and Var...')
 
 apply_list_fns <- function(x, fns = c('mean', 'sd', 'var'), quantiles = NULL) {
   for (fns_i in fns) {
@@ -94,7 +95,7 @@ norm_counts_treat_2 = norm_counts_treat %>%
 # Quantiles ---------------------------------------------------------------
 quantile_time = Sys.time()
 print(meansdvar_time - quantile_time)
-
+print('Calculating Quantiles...')
 
 norm_counts_con_quantiles = norm_counts_con %>% 
   apply(1, quantile, seq(0, 1, 0.05)) %>% 
@@ -121,6 +122,7 @@ norm_counts_treat_2 = norm_counts_treat_2 %>%
 # Feature the median of each 1/10th of the samples ------------------------
 onetenth_time = Sys.time()
 print(quantile_time - onetenth_time)
+print('Calculating Subsample median...')
 
 
 subsample_median <- function(x, num_var, portions) {
@@ -153,6 +155,7 @@ norm_counts_treat_3 = norm_counts_treat_2 %>%
 # Count NA observations ---------------------------------------------------
 nacount_time = Sys.time()
 print(onetenth_time - nacount_time)
+print('Calculating NAs...')
 
 
 norm_counts_con_4 = norm_counts_con_3
@@ -185,6 +188,7 @@ time_f = Sys.time()
 # Count outliers ----------------------------------------------------------
 outliercount_time = Sys.time()
 print(nacount_time - outliercount_time)
+print('Calculating outliers...')
 # This section takes an hour to run
 
 countOutliers <- function(x, na.rm = T, ...) {
@@ -274,7 +278,7 @@ for (feature_name in feature_names) {
 # Third Quartile Rule -----------------------------------------------------
 quantdiff_time = Sys.time()
 print(outliercount_time - quantdiff_time)
-
+print('Calculating quantile rules...')
 
 # onequartilediff_rule = 
 #   norm_counts_features['quantile_50%_APA_The'] > norm_counts_features['quantile_75%_ConDMSO'] | norm_counts_features['quantile_50%_APA_The'] < norm_counts_features['quantile_25%_ConDMSO'] | norm_counts_features['quantile_50%_ConDMSO'] > norm_counts_features['quantile_75%_APA_The'] | norm_counts_features['quantile_50%_ConDMSO'] < norm_counts_features['quantile_25%_APA_The']
@@ -393,6 +397,7 @@ norm_counts_features = cbind.data.frame(norm_counts_features, cpm_feature)
 # Spurious Spike Filter ---------------------------------------------------
 spuspi_time = Sys.time()
 print(quantdiff_time - spuspi_time)
+print('Calculating spike filter...')
 
 
 spur_spike_filter = function(x) {
