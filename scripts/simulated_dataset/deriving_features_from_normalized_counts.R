@@ -19,13 +19,13 @@ norm_counts = norm_counts_path %>% readRDS %>% as.data.frame()
 colnames_con_logi = grepl(pattern = levels(coldata[, contrast_group])[1], coldata[, contrast_group])
 colnames_treat_logi = grepl(levels(coldata[, contrast_group])[2], coldata[, contrast_group])
 
-colnames(norm_counts)[colnames_con_logi] = paste0('Control_', colnames(norm_counts)[colnames_con_logi])
-colnames(norm_counts)[colnames_treat_logi] = paste0('Treatment_', colnames(norm_counts)[colnames_treat_logi])
+colnames(norm_counts)[colnames_con_logi] = paste0('ConDMSO_', colnames(norm_counts)[colnames_con_logi])
+colnames(norm_counts)[colnames_treat_logi] = paste0('APA_The_', colnames(norm_counts)[colnames_treat_logi])
 
 colnames_con = subset(x = colnames(norm_counts), 
-                      grepl('Control', colnames(norm_counts)))
+                      grepl('ConDMSO', colnames(norm_counts)))
 colnames_treat = subset(x = colnames(norm_counts), 
-                        grepl('Treatment', colnames(norm_counts)))
+                        grepl('APA_The', colnames(norm_counts)))
 
 time_i = Sys.time()
 
@@ -56,9 +56,9 @@ norm_counts_2 = norm_counts %>%
   na.omit()
 
 
-norm_counts_con = norm_counts_2[, grep('Control', colnames(norm_counts_2))]
+norm_counts_con = norm_counts_2[, grep('ConDMSO', colnames(norm_counts_2))]
 con_length = ncol(norm_counts_con)
-norm_counts_treat = norm_counts_2[, grep('Treatment', colnames(norm_counts_2))]
+norm_counts_treat = norm_counts_2[, grep('APA_The', colnames(norm_counts_2))]
 treat_length = ncol(norm_counts_treat)
 
 
@@ -221,9 +221,9 @@ norm_counts_treat_4$Proportion_mild_outliers =
 
 
 colnames(norm_counts_con_4)[!colnames(norm_counts_con_4) %in% colnames_con] = 
-  paste0(colnames(norm_counts_con_4)[!colnames(norm_counts_con_4) %in% colnames_con], '_', 'Control')
+  paste0(colnames(norm_counts_con_4)[!colnames(norm_counts_con_4) %in% colnames_con], '_', 'ConDMSO')
 colnames(norm_counts_treat_4)[!colnames(norm_counts_treat_4) %in% colnames_treat] = 
-  paste0(colnames(norm_counts_treat_4)[!colnames(norm_counts_treat_4) %in% colnames_treat], '_', 'Treatment')
+  paste0(colnames(norm_counts_treat_4)[!colnames(norm_counts_treat_4) %in% colnames_treat], '_', 'APA_The')
 
 stopifnot(identical(rownames(norm_counts_con_4), rownames(norm_counts_treat_4)))
 
@@ -233,7 +233,7 @@ norm_counts_4 = norm_counts_con_4 %>%
 
 # raw_counts <- DESeq2::counts(object = dds, normalized = F)
 # cpm_counts = 
-norm_counts_features = norm_counts_4[, !grepl('Control_|Treatment_', 
+norm_counts_features = norm_counts_4[, !grepl('ConDMSO_|APA_The_', 
                                                 colnames(norm_counts_4))]
 
 # dupl_cols = norm_counts_features %>% t %>% duplicated
@@ -241,8 +241,8 @@ norm_counts_features = norm_counts_4[, !grepl('Control_|Treatment_',
 
 
 feature_names = colnames(norm_counts_features) %>% 
-  subset(., grepl('_Control', .)) %>% 
-  gsub(pattern = '_Control', replacement = '')
+  subset(., grepl('_ConDMSO', .)) %>% 
+  gsub(pattern = '_ConDMSO', replacement = '')
 
 for (feature_name in feature_names) {
   norm_counts_feature = 
@@ -277,20 +277,20 @@ print(outliercount_time - quantdiff_time)
 
 
 # onequartilediff_rule = 
-#   norm_counts_features['quantile_50%_Treatment'] > norm_counts_features['quantile_75%_Control'] | norm_counts_features['quantile_50%_Treatment'] < norm_counts_features['quantile_25%_Control'] | norm_counts_features['quantile_50%_Control'] > norm_counts_features['quantile_75%_Treatment'] | norm_counts_features['quantile_50%_Control'] < norm_counts_features['quantile_25%_Treatment']
+#   norm_counts_features['quantile_50%_APA_The'] > norm_counts_features['quantile_75%_ConDMSO'] | norm_counts_features['quantile_50%_APA_The'] < norm_counts_features['quantile_25%_ConDMSO'] | norm_counts_features['quantile_50%_ConDMSO'] > norm_counts_features['quantile_75%_APA_The'] | norm_counts_features['quantile_50%_ConDMSO'] < norm_counts_features['quantile_25%_APA_The']
 # 
 # colnames(onequartilediff_rule) = 'onequartilediff_rule'
 # 
 # norm_counts_features$onequartilediff_rule = onequartilediff_rule
 
-q1belmin = norm_counts_features['quantile_25%_Control'] < norm_counts_features['quantile_0%_Treatment']
-q2belq1 = norm_counts_features['quantile_50%_Control'] < norm_counts_features['quantile_25%_Treatment']
-q3belq2 = norm_counts_features['quantile_75%_Control'] < norm_counts_features['quantile_50%_Treatment']
-maxbelq3 = norm_counts_features['quantile_100%_Control'] < norm_counts_features['quantile_75%_Treatment']
-minaboq1 = norm_counts_features['quantile_0%_Control'] > norm_counts_features['quantile_25%_Treatment']
-q1aboq2 = norm_counts_features['quantile_25%_Control'] > norm_counts_features['quantile_50%_Treatment']
-q2aboq3 = norm_counts_features['quantile_50%_Control'] > norm_counts_features['quantile_75%_Treatment']
-q3abomax = norm_counts_features['quantile_75%_Control'] > norm_counts_features['quantile_100%_Treatment']
+q1belmin = norm_counts_features['quantile_25%_ConDMSO'] < norm_counts_features['quantile_0%_APA_The']
+q2belq1 = norm_counts_features['quantile_50%_ConDMSO'] < norm_counts_features['quantile_25%_APA_The']
+q3belq2 = norm_counts_features['quantile_75%_ConDMSO'] < norm_counts_features['quantile_50%_APA_The']
+maxbelq3 = norm_counts_features['quantile_100%_ConDMSO'] < norm_counts_features['quantile_75%_APA_The']
+minaboq1 = norm_counts_features['quantile_0%_ConDMSO'] > norm_counts_features['quantile_25%_APA_The']
+q1aboq2 = norm_counts_features['quantile_25%_ConDMSO'] > norm_counts_features['quantile_50%_APA_The']
+q2aboq3 = norm_counts_features['quantile_50%_ConDMSO'] > norm_counts_features['quantile_75%_APA_The']
+q3abomax = norm_counts_features['quantile_75%_ConDMSO'] > norm_counts_features['quantile_100%_APA_The']
 
 norm_counts_features$q1belmin = q1belmin
 norm_counts_features$q2belq1 = q2belq1
@@ -308,12 +308,12 @@ norm_counts_features$onequartilediff_rule = onequartilediff_rule
 
 
 
-q2belmin = norm_counts_features['quantile_50%_Control'] < norm_counts_features['quantile_0%_Treatment']
-q3belq1 = norm_counts_features['quantile_75%_Control'] < norm_counts_features['quantile_25%_Treatment']
-maxbelq2 = norm_counts_features['quantile_100%_Control'] < norm_counts_features['quantile_50%_Treatment']
-minaboq2 = norm_counts_features['quantile_0%_Control'] > norm_counts_features['quantile_50%_Treatment']
-q1aboq3 = norm_counts_features['quantile_25%_Control'] > norm_counts_features['quantile_75%_Treatment']
-q2abomax = norm_counts_features['quantile_50%_Control'] > norm_counts_features['quantile_100%_Treatment']
+q2belmin = norm_counts_features['quantile_50%_ConDMSO'] < norm_counts_features['quantile_0%_APA_The']
+q3belq1 = norm_counts_features['quantile_75%_ConDMSO'] < norm_counts_features['quantile_25%_APA_The']
+maxbelq2 = norm_counts_features['quantile_100%_ConDMSO'] < norm_counts_features['quantile_50%_APA_The']
+minaboq2 = norm_counts_features['quantile_0%_ConDMSO'] > norm_counts_features['quantile_50%_APA_The']
+q1aboq3 = norm_counts_features['quantile_25%_ConDMSO'] > norm_counts_features['quantile_75%_APA_The']
+q2abomax = norm_counts_features['quantile_50%_ConDMSO'] > norm_counts_features['quantile_100%_APA_The']
 
 norm_counts_features$q2belmin = q2belmin
 norm_counts_features$q3belq1 = q3belq1
@@ -329,10 +329,10 @@ norm_counts_features$twoquartilediff_rule = twoquartilediff_rule
 
 
 
-q3belmin = norm_counts_features['quantile_75%_Control'] < norm_counts_features['quantile_0%_Treatment']
-maxbelq1 = norm_counts_features['quantile_100%_Control'] < norm_counts_features['quantile_25%_Treatment']
-minaboq3 = norm_counts_features['quantile_0%_Control'] > norm_counts_features['quantile_75%_Treatment']
-q1abomax = norm_counts_features['quantile_25%_Control'] > norm_counts_features['quantile_100%_Treatment']
+q3belmin = norm_counts_features['quantile_75%_ConDMSO'] < norm_counts_features['quantile_0%_APA_The']
+maxbelq1 = norm_counts_features['quantile_100%_ConDMSO'] < norm_counts_features['quantile_25%_APA_The']
+minaboq3 = norm_counts_features['quantile_0%_ConDMSO'] > norm_counts_features['quantile_75%_APA_The']
+q1abomax = norm_counts_features['quantile_25%_ConDMSO'] > norm_counts_features['quantile_100%_APA_The']
 
 norm_counts_features$q3belmin = q3belmin
 norm_counts_features$maxbelq1 = maxbelq1
@@ -346,8 +346,8 @@ norm_counts_features$threequartilediff_rule = threequartilediff_rule
 
 
 
-maxbelmin = norm_counts_features['quantile_100%_Control'] < norm_counts_features['quantile_0%_Treatment']
-minabomax = norm_counts_features['quantile_0%_Control'] > norm_counts_features['quantile_100%_Treatment']
+maxbelmin = norm_counts_features['quantile_100%_ConDMSO'] < norm_counts_features['quantile_0%_APA_The']
+minabomax = norm_counts_features['quantile_0%_ConDMSO'] > norm_counts_features['quantile_100%_APA_The']
 
 norm_counts_features$maxbelmin = maxbelmin
 norm_counts_features$minabomax = minabomax
@@ -372,14 +372,14 @@ norm_counts_features$quartilediff_score = quartilediff_score
 
 
 # thirdfirstquartile_rule = 
-#   norm_counts_features['quantile_25%_Treatment'] > norm_counts_features['quantile_75%_Control'] | norm_counts_features['quantile_75%_Treatment'] < norm_counts_features['quantile_25%_Control']
+#   norm_counts_features['quantile_25%_APA_The'] > norm_counts_features['quantile_75%_ConDMSO'] | norm_counts_features['quantile_75%_APA_The'] < norm_counts_features['quantile_25%_ConDMSO']
 # 
 # colnames(thirdfirstquartile_rule) = 'thirdfirstquartile_rule'
 # 
 # norm_counts_features$thirdfirstquartile_rule = thirdfirstquartile_rule
 # 
 # maxmin_rule = 
-#   norm_counts_features['quantile_0%_Treatment'] > norm_counts_features['quantile_100%_Control'] | norm_counts_features['quantile_100%_Treatment'] < norm_counts_features['quantile_0%_Control']
+#   norm_counts_features['quantile_0%_APA_The'] > norm_counts_features['quantile_100%_ConDMSO'] | norm_counts_features['quantile_100%_APA_The'] < norm_counts_features['quantile_0%_ConDMSO']
 # 
 # colnames(maxmin_rule) = 'maxmin_rule'
 # 
@@ -425,8 +425,8 @@ norm_counts_features %>% saveRDS(norm_counts_features_path)
 
 # colnames(norm_counts_con_4) =
 #   colnames(norm_counts_con_4) %>%
-#   gsub('_Control', '', .)
+#   gsub('_ConDMSO', '', .)
 # colnames(norm_counts_treat_4) =
 #   colnames(norm_counts_treat_4) %>%
-#   gsub('_Treatment', '', .)
+#   gsub('_APA_The', '', .)
 

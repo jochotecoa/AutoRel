@@ -8,4 +8,4 @@ res_rowdata$significant = res_rowdata$padj < 0.05
 res_rowdata$significant %<>% as.factor()
 res_rowdata$DE.ind %<>% as.factor()
 
-confusionMatrix(res_rowdata$DE.ind, res_rowdata$significant)
+conf_matr_sign = confusionMatrix(res_rowdata$DE.ind, res_rowdata$significant)
