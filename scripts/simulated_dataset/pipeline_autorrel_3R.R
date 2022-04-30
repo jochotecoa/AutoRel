@@ -4,6 +4,7 @@ n_replicates = 100
 
 
 library('progress')
+library('caret')
 ## ETA
 pb <- progress_bar$new(
   format = "  downloading [:bar] :percent eta: :eta",
