@@ -83,9 +83,11 @@ for (i in seq_len(n_replicates)) {
   
   pred_rowdata = merge(res_rowdata, pred_1, 'rowname')
   
-  conf_matr_rel = confusionMatrix(pred_rowdata$DE.ind, pred_rowdata$pred_logi, positive = 'TRUE')
-  conf_matr_rel_2 = confusionMatrix(pred_rowdata$DE.ind, pred_rowdata$pred_logi_2, positive = 'TRUE')
-  conf_matr_sign = confusionMatrix(pred_rowdata$DE.ind, pred_rowdata$significant, positive = 'TRUE')
+  pred_rowdata$significant[is.na(pred_rowdata$significant)] = F
+  
+  conf_matr_rel = confusionMatrix(pred_rowdata$pred_logi, pred_rowdata$DE.ind, positive = 'TRUE')
+  conf_matr_rel_2 = confusionMatrix(pred_rowdata$pred_logi_2, pred_rowdata$DE.ind, positive = 'TRUE')
+  conf_matr_sign = confusionMatrix(pred_rowdata$significant, pred_rowdata$DE.ind, positive = 'TRUE')
   
   overall_df = conf_matr_rel$overall %>% 
     as.data.frame() %>% 
@@ -125,8 +127,16 @@ for (i in seq_len(n_replicates)) {
   
 }
 
+if (!dir.exists('output/simulated_data/21R/')) {
+  dir.create('output/simulated_data/21R/', recursive = T)
+}
+
+saveRDS(conf_matr_all_df, 'output/simulated_data/21R/relevant_performance.rds')
+saveRDS(conf_matr_all_rel_2_df, 'output/simulated_data/21R/rel_dub_performance.rds')
+saveRDS(conf_matr_all_sign_df, 'output/simulated_data/21R/significant_performance.rds')
+
 
 rel_sign_ratio = conf_matr_all_df/conf_matr_all_sign_df
 rel_2_sign_ratio = conf_matr_all_rel_2_df/conf_matr_all_sign_df
 
-
+boxplot(rel_sign_ratio, las = 2)

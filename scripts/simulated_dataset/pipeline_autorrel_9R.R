@@ -21,7 +21,7 @@ for (i in seq_len(n_replicates)) {
   source('scripts/simulated_dataset/generate_spsimseq_9R.R')
   source('scripts/simulated_dataset/deseq2.R')
   
-  source('scripts/simulated_dataset/confusion_matrix_population_vs_sampling_pvalues.R')
+  # source('scripts/simulated_dataset/confusion_matrix_population_vs_sampling_pvalues.R')
   
   if (!dir.exists('data/simulated_data/9R')) {
     dir.create('data/simulated_data/9R', recursive = T)
@@ -83,9 +83,16 @@ for (i in seq_len(n_replicates)) {
   
   pred_rowdata = merge(res_rowdata, pred_1, 'rowname')
   
-  conf_matr_rel = confusionMatrix(pred_rowdata$DE.ind, pred_rowdata$pred_logi, positive = 'TRUE')
-  conf_matr_rel_2 = confusionMatrix(pred_rowdata$DE.ind, pred_rowdata$pred_logi_2, positive = 'TRUE')
-  conf_matr_sign = confusionMatrix(pred_rowdata$DE.ind, pred_rowdata$significant, positive = 'TRUE')
+  pred_rowdata$significant[is.na(pred_rowdata$significant)] = F
+  
+  if (levels(pred_rowdata$DE.ind) != levels(pred_rowdata$pred_logi) | levels(pred_rowdata$DE.ind) != levels(pred_rowdata$pred_logi_2) |levels(pred_rowdata$DE.ind) != levels(pred_rowdata$significant)) {
+    warning('Some prediction did not share levels in iteration ', i)
+    levels(pred_rowdata$pred_logi) = levels(pred_rowdata$pred_logi_2) = levels(pred_rowdata$significant) = levels(pred_rowdata$DE.ind)
+  }
+  
+  conf_matr_rel = confusionMatrix(pred_rowdata$pred_logi, pred_rowdata$DE.ind, positive = 'TRUE')
+  conf_matr_rel_2 = confusionMatrix(pred_rowdata$pred_logi_2, pred_rowdata$DE.ind, positive = 'TRUE')
+  conf_matr_sign = confusionMatrix(pred_rowdata$significant, pred_rowdata$DE.ind, positive = 'TRUE')
   
   overall_df = conf_matr_rel$overall %>% 
     as.data.frame() %>% 
@@ -124,6 +131,14 @@ for (i in seq_len(n_replicates)) {
   
   
 }
+
+if (!dir.exists('output/simulated_data/9R/')) {
+  dir.create('output/simulated_data/9R/', recursive = T)
+}
+
+saveRDS(conf_matr_all_df, 'output/simulated_data/9R/relevant_performance.rds')
+saveRDS(conf_matr_all_rel_2_df, 'output/simulated_data/9R/rel_dub_performance.rds')
+saveRDS(conf_matr_all_sign_df, 'output/simulated_data/9R/significant_performance.rds')
 
 
 rel_sign_ratio = conf_matr_all_df/conf_matr_all_sign_df
