@@ -10,7 +10,7 @@ all_res = readRDS(file = all_res_path)
 rowname_col = all_res %>% colnames %>% grepl('rowname', .) %>% any
 
 if (!rowname_col) {
-  all_res =all_res %>% 
+  all_res = all_res %>% 
     rownames_to_column()
 }
 

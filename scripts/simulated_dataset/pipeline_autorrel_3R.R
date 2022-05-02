@@ -20,7 +20,7 @@ for (i in seq_len(n_replicates)) {
   source('scripts/simulated_dataset/generate_spsimseq_3R.R')
   source('scripts/simulated_dataset/deseq2.R')
   
-  # source('scripts/simulated_dataset/confusion_matrix_population_vs_sampling_pvalues.R')
+  source('scripts/simulated_dataset/confusion_matrix_population_vs_sampling_pvalues.R')
   
   if (!dir.exists('data/simulated_data/3R')) {
     dir.create('data/simulated_data/3R', recursive = T)
