@@ -21,8 +21,10 @@ MYCN.status  <- zhang.data.sub$MYCN.status #The grouping variable
 # simulate data
 sim.data.bulk <- SPsimSeq(n.sim = 1, s.data = zhang.counts,
                           group = MYCN.status, n.genes = 3000, batch.config = 1,
-                          group.config = c(0.5, 0.5), tot.samples = ncol(zhang.counts), 
-                          pDE = 0.1, lfc.thrld = 0.5, result.format = "list", return.details = TRUE)
+                          group.config = c(0.5, 0.5), 
+                          tot.samples = ncol(zhang.counts), 
+                          pDE = 0.1, lfc.thrld = 0.5, result.format = "list", 
+                          return.details = TRUE, verbose = F)
 
 
 sim.data.bulk1 <- sim.data.bulk$sim.data.list[[1]]
@@ -46,13 +48,14 @@ coldata_group_logi = coldata
 #                                           which(coldata_group_logi$Group)), ]
 coldata_group = coldata_group_logi
 coldata_group$Group[coldata_group_logi$Group] = 'MYCN_amplified'
-coldata_group$Group[!coldata_group_logi$Group] = 'MYCN_non-amplified'
+coldata_group$Group[!coldata_group_logi$Group] = 'MYCN_non_amplified'
 
 coldata = coldata_group 
 
 # Note: In order to benefit from the default settings of the package, you should 
 # put the variable of interest at the end of the formula and make sure the 
 # control level is the first level.
+
 coldata$Group = factor(coldata$Group, levels = unique(coldata$Group))
 coldata$Group %>% levels() %>% .[1]
 

@@ -12,14 +12,14 @@ forceLibrary(c('biomaRt', "tximport", "dplyr", "DESeq2", "grid", "ggplot2",
 
 
 cts = counts %>% 
-  apply(2, round) %>% 
+  apply(2, as.integer) %>% 
   as.data.frame() 
 
 dds = DESeqDataSetFromMatrix(countData = cts, 
                              colData = coldata, 
                              design = ~ Group)
 
-dds <- DESeq(dds)
+dds <- DESeq(dds, quiet = T)
 
 # contrast = c("conditions","APA_The","ConDMSO")
 # 

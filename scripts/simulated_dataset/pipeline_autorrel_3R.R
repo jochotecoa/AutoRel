@@ -17,7 +17,7 @@ conf_matr_all_rel_2_df = data.frame()
 for (i in seq_len(n_replicates)) {
   pb$tick()
   
-  source('scripts/simulated_dataset/generate_spsimseq_3R.R')
+  source('scripts/simulated_dataset/generate_spsimseq_3R.R', echo = F)
   source('scripts/simulated_dataset/deseq2.R')
   
   source('scripts/simulated_dataset/confusion_matrix_population_vs_sampling_pvalues.R')
