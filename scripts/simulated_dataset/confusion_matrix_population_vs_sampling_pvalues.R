@@ -14,4 +14,4 @@ if (levels(res_rowdata$DE.ind) != levels(res_rowdata$significant)) {
 }
 
 
-conf_matr_sign = confusionMatrix(res_rowdata$DE.ind, res_rowdata$significant)
+conf_matr_sign = confusionMatrix(res_rowdata$significant, res_rowdata$DE.ind, positive = 'TRUE')
