@@ -139,4 +139,11 @@ saveRDS(conf_matr_all_sign_df, 'output/simulated_data/21R/significant_performanc
 rel_sign_ratio = conf_matr_all_df/conf_matr_all_sign_df
 rel_2_sign_ratio = conf_matr_all_rel_2_df/conf_matr_all_sign_df
 
-boxplot(rel_sign_ratio, las = 2)
+rel_sign_ratio[, -6:-7] %>% boxplot(las=2, cex.axis = 0.5, ylim = c(0, 2))
+abline(1, 0)
+dev.off()
+
+rel_2_sign_ratio[, -6:-7] %>% boxplot(las=2, cex.axis = 0.5, ylim = c(0, 2))
+abline(1, 0)
+dev.off()
+
