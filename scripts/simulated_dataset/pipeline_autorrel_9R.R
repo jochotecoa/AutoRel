@@ -7,16 +7,16 @@ library('progress')
 library('caret')
 
 ## ETA
-pb <- progress_bar$new(
+pb2 <- progress_bar$new(
   format = "  downloading [:bar] :percent eta: :eta",
-  total = n_replicates, clear = FALSE, width= 60)
+  total = n_replicates, show_after = 0, force = T)
 
 conf_matr_all_df = data.frame()
 conf_matr_all_sign_df = data.frame()
 conf_matr_all_rel_2_df = data.frame()
 
 for (i in seq_len(n_replicates)) {
-  pb$tick()
+  pb2$tick()
   
   source('scripts/simulated_dataset/generate_spsimseq_9R.R')
   source('scripts/simulated_dataset/deseq2.R')
