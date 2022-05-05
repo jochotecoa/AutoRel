@@ -13,7 +13,7 @@ forceLibrary(c('biomaRt', "tximport", "dplyr", "DESeq2", "grid", "ggplot2",
 
 cts = counts %>% 
   apply(2, as.integer) %>% 
-  as.data.frame() 
+  as.data.frame(row.names = rownames(counts)) 
 
 dds = DESeqDataSetFromMatrix(countData = cts, 
                              colData = coldata, 
