@@ -133,7 +133,3 @@ saveRDS(conf_matr_all_df, 'output/simulated_data/50R/relevant_performance.rds')
 saveRDS(conf_matr_all_rel_2_df, 'output/simulated_data/50R/rel_dub_performance.rds')
 saveRDS(conf_matr_all_sign_df, 'output/simulated_data/50R/significant_performance.rds')
 
-rel_sign_ratio = conf_matr_all_df/conf_matr_all_sign_df
-rel_2_sign_ratio = conf_matr_all_rel_2_df/conf_matr_all_sign_df
-
-
