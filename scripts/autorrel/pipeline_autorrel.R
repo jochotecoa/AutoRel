@@ -36,7 +36,7 @@ res %<>% as.data.frame() %>%
   
   
   saveRDS(file = norm_counts_path, norm_counts)
-  source('scripts/simulated_dataset/deriving_features_from_normalized_counts.R')
+  source('scripts/autorrel/backend/deriving_features_from_normalized_counts.R')
   
   res_dds_path = 'data/temporary_data/results_dds_deseq2.rds'
   all_res_path = 'data/temporary_data/all_res.rds'
@@ -45,7 +45,7 @@ res %<>% as.data.frame() %>%
   source('scripts/pre-processing/deriving_features_from_res.R')
   
   deseq2_dataset_all_path = 'data/temporary_data/deseq2_features_all.rds'
-  source('scripts/simulated_dataset/merge_countfeats_with_statfeats.R')
+  source('scripts/autorrel/backend/merge_countfeats_with_statfeats.R')
   
   train_mod_path = '/ngs-data-2/analysis/juan/autosign/trained_models/apap_3_9_21/significant_labels'
   
