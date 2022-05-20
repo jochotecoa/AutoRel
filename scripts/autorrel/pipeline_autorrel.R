@@ -8,6 +8,17 @@ library('caret')
 
 # contrast_group = NULL
 
+askControlGroup <- function(lvls) {
+  print('Which level is your control group? (Type a number)')
+  print(paste(seq(1, length(lvls)), ':', lvls))
+  control_group = scan(n=1)
+  
+}
+
+
+lvls = levels(coldata[, contrast_group])
+control_group = askControlGroup(lvls)
+control_level = lvls[control_group]
 
 
 

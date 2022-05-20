@@ -16,8 +16,8 @@ removeOutliers <- function(x) {
 
 norm_counts = norm_counts_path %>% readRDS %>% as.data.frame()
 
-colnames_con_logi = grepl(pattern = levels(coldata[, contrast_group])[1], coldata[, contrast_group])
-colnames_treat_logi = grepl(levels(coldata[, contrast_group])[2], coldata[, contrast_group])
+colnames_con_logi = grepl(pattern = control_level, coldata[, contrast_group])
+colnames_treat_logi = !grepl(pattern = control_level, coldata[, contrast_group])
 
 colnames(norm_counts)[colnames_con_logi] = paste0('ConDMSO_', colnames(norm_counts)[colnames_con_logi])
 colnames(norm_counts)[colnames_treat_logi] = paste0('APA_The_', colnames(norm_counts)[colnames_treat_logi])
