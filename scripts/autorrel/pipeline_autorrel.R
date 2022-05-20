@@ -10,11 +10,6 @@ library('caret')
 
 
 
-norm_counts = DESeq2::counts(object = dds, normalized = T)
-
-
-res <- results(dds)
-
 
   source('scripts/simulated_dataset/confusion_matrix_population_vs_sampling_pvalues.R')
   
@@ -68,36 +63,6 @@ res <- results(dds)
   pred <- data.frame(pred = predict(model_treebag, newdata = deseq2_dataset_all), 
                      rowname = deseq2_dataset_all$rowname)
   
-
-if (!dir.exists('output/simulated_data/3R/')) {
-  dir.create('output/simulated_data/3R/', recursive = T)
-}
-
-saveRDS(conf_matr_all_df, 'output/simulated_data/3R/relevant_performance.rds')
-saveRDS(conf_matr_all_rel_2_df, 'output/simulated_data/3R/rel_dub_performance.rds')
-saveRDS(conf_matr_all_sign_df, 'output/simulated_data/3R/significant_performance.rds')
-
-
-rel_sign_ratio = conf_matr_all_df/conf_matr_all_sign_df
-rel_2_sign_ratio = conf_matr_all_rel_2_df/conf_matr_all_sign_df
-
-par(mar = c(10, 5, 5, 5))
-rel_sign_ratio[, c(1, 2, 8:11, 18)] %>% boxplot(las=2, cex.axis = 1, ylim = c(0, 2))
-abline(1, 0)
-dev.off()
-
-par(mar = c(10, 5, 5, 5))
-rel_2_sign_ratio[, c(1, 2, 8:11, 18)] %>% boxplot(las=2, cex.axis = 1, ylim = c(0, 2))
-abline(1, 0)
-dev.off()
-
-
-conf_matr_all_df_2 = conf_matr_all_df
-colnames(conf_matr_all_df_2) %<>% paste0(., '_relevant')
-conf_matr_all_rel_2_df_2 = conf_matr_all_rel_2_df
-colnames(conf_matr_all_rel_2_df_2) %<>% paste0(., '_relevant_dubious')
-conf_matr_all_sign_df_2 = conf_matr_all_sign_df
-colnames(conf_matr_all_sign_df_2) %<>% paste0(., '_significant')
-
-conf_matr_comb_df = cbind.data.frame(conf_matr_all_df_2, conf_matr_all_sign_df_2)
-
+  pred$pred %<>% gsub(pattern = 'nonsignificant', replacement = 'irrelevant') %>% 
+    gsub(pattern = 'significant', replacement = 'relevant')
+  
