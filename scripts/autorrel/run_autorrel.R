@@ -47,15 +47,3 @@ if (!exists('coldata')) {
 
 
 source('scripts/autorrel/pipeline_autorrel.R')
-
-
-# Save the results --------------------------------------------------------
-
-if (!dir.exists(output_path)) {
-  dir.create(output_path, recursive = T)
-}
-
-write.csv(pred, file = paste0(output_path, '/all_results.csv'))
-
-relevant_genes = pred[pred$pred == 'relevant', ]
-write.csv(relevant_genes, file = paste0(output_path, '/relevant_genes.csv'))
