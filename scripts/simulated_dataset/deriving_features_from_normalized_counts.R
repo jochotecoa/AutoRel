@@ -15,6 +15,7 @@ removeOutliers <- function(x) {
 # Input data --------------------------------------------------------------
 
 norm_counts = norm_counts_path %>% readRDS %>% as.data.frame()
+norm_counts %<>% column_to_rownames(colnames(norm_counts)[1])
 
 colnames_con_logi = grepl(pattern = control_level, coldata[, contrast_group])
 colnames_treat_logi = !grepl(pattern = control_level, coldata[, contrast_group])
@@ -32,7 +33,7 @@ time_i = Sys.time()
 # CPM rule ----------------------------------------------------------------
 cpm_time = Sys.time()
 # print('Calculating CPM rule...')
-cpm_norm_counts = cpm(norm_counts) %>% as.data.frame()
+cpm_norm_counts = norm_counts %>% cpm() %>% as.data.frame()
 cpm_norm_counts_con = cpm_norm_counts[, colnames_con]
 cpm_norm_counts_treat = cpm_norm_counts[, colnames_treat]
 

@@ -11,6 +11,7 @@ library('tidyverse')
 library('magrittr')
 
 
+
 # Set up your files -------------------------------------------------------
 
 # Optional if DESeq2 was run in the same session
@@ -40,12 +41,6 @@ if (!exists('coldata')) {
   coldata = read.csv(path_coldata, stringsAsFactors = T)
 }
 
-print('Which level is your control group?')
-lvls = levels(coldata[, contrast_group])
-print(paste(seq(1, length(lvls)), ':', lvls))
-control_group = scan(n=1)
-
-control_level = lvls[control_group]
 
 
 # Generate the features and run the model ---------------------------------
@@ -59,7 +54,7 @@ if (!dir.exists(output_path)) {
   dir.create(output_path, recursive = T)
 }
 
-write.csv(pred, file = paste0(pred, '/all_results.csv'))
+write.csv(pred, file = paste0(output_path, '/all_results.csv'))
 
 relevant_genes = pred[pred$pred == 'relevant', ]
-write.csv(pred, file = paste0(relevant_genes, '/relevant_genes.csv'))
+write.csv(relevant_genes, file = paste0(output_path, '/relevant_genes.csv'))
