@@ -11,25 +11,26 @@ library('caret')
 
 
 
-  source('scripts/simulated_dataset/confusion_matrix_population_vs_sampling_pvalues.R')
-  
-  if (!dir.exists('data/simulated_data/3R')) {
-    dir.create('data/simulated_data/3R', recursive = T)
+res %<>% as.data.frame() %>% 
+  rownames_to_column()
+
+  if (!dir.exists('data/temporary_data')) {
+    dir.create('data/temporary_data', recursive = T)
   }
-  norm_counts_path = 'data/simulated_data/3R/norm_counts.rds'
-  norm_counts_features_path = 'data/simulated_data/3R/norm_counts_features.rds'
+  norm_counts_path = 'data/temporary_data/norm_counts.rds'
+  norm_counts_features_path = 'data/temporary_data/norm_counts_features.rds'
   
   
   saveRDS(file = norm_counts_path, norm_counts)
   source('scripts/simulated_dataset/deriving_features_from_normalized_counts.R')
   
-  res_dds_path = 'data/simulated_data/3R/results_dds_deseq2.rds'
-  all_res_path = 'data/simulated_data/3R/all_res.rds'
+  res_dds_path = 'data/temporary_data/results_dds_deseq2.rds'
+  all_res_path = 'data/temporary_data/all_res.rds'
   saveRDS(object = res, file = res_dds_path)
   
   source('scripts/pre-processing/deriving_features_from_res.R')
   
-  deseq2_dataset_all_path = 'data/simulated_data/3R/deseq2_features_all.rds'
+  deseq2_dataset_all_path = 'data/temporary_data/deseq2_features_all.rds'
   source('scripts/simulated_dataset/merge_countfeats_with_statfeats.R')
   
   train_mod_path = '/ngs-data-2/analysis/juan/autosign/trained_models/apap_3_9_21/significant_labels'

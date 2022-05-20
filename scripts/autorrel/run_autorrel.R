@@ -7,6 +7,7 @@
 
 library('progress')
 library('caret')
+library('tidyverse')
 
 
 # Set up your files -------------------------------------------------------
@@ -19,6 +20,10 @@ if (exists('dds')) {
 } else {
   path_norm_counts = 'data/example_files/norm_counts.csv'
   path_res = 'data/example_files/res.csv'
+  
+  norm_counts = read.csv(path_norm_counts)
+  res = read.csv(path_res)
+  
 }
 
 contrast_group = 'Group'
