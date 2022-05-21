@@ -10,6 +10,8 @@ library('caret')
 library('tidyverse')
 library('magrittr')
 
+dir.create('../temp_dir')
+download.file("https://onedrive.live.com/download?cid=3B8629BED5CB140F&resid=3B8629BED5CB140F%21117&authkey=ABgUnQNkPS48vZI", "../temp_dir/autorrel.rds")
 
 
 # Set up your files -------------------------------------------------------

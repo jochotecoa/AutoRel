@@ -49,7 +49,8 @@ res %<>% as.data.frame() %>%
   
   train_mod_path = '/ngs-data-2/analysis/juan/autosign/trained_models/apap_3_9_21/significant_labels'
   
-  model_treebag = readRDS(paste0(train_mod_path, '/treebag/original.rds'))
+  # model_treebag = readRDS(paste0(train_mod_path, '/treebag/original.rds'))
+  model_treebag = readRDS("../temp_dir/autorrel.rds")
   deseq2_dataset_all = deseq2_dataset_all_path %>% readRDS() %>% as.data.frame()
   
   colnames(deseq2_dataset_all) %<>% make.names() %>% 
