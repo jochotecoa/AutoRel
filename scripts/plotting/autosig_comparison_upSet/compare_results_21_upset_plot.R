@@ -53,7 +53,7 @@ colnames(degs_df) = colnames(degs_df) %>%
   gsub(pattern = 'fdr_', replacement = 'FDR<') %>% 
   gsub(pattern = '_l2fc_', replacement = ' & L2FC>') %>% 
   gsub(pattern = 'r_odaf', replacement = 'R-ODAF') %>% 
-  gsub(pattern = 'relevant', replacement = 'Relevant') 
+  gsub(pattern = 'relevant', replacement = 'AutoRel') 
 
 
 dir.create('output/plots/upset/', recursive = T)
