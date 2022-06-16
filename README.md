@@ -6,7 +6,7 @@ To be run, it requires the following installations:
 - R language
 - DESeq2 R package
 
-One can access "AutoRel/scripts/autorrel/run_autorrel.R" to introduce the data and run the model.
+One can access **"AutoRel/scripts/autorrel/run_autorrel.R"** to introduce the data and run the model.
 
 After running DESeq2, 4 files/variables that can be recovered from the DESeq2 output are needed:
 - **norm_counts**: These are the normalized counts. 
