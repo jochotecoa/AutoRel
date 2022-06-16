@@ -1,6 +1,6 @@
 # AutoRel
 
-Welcome to the auto_relevant (or autorrel) model.
+Welcome to the AutoRel (auto_relevant or autorrel) model.
 
 To be run, it requires the following installations:
 - R language
