@@ -1,4 +1,4 @@
-# auto_relevant
+# AutoRel
 
 Welcome to the auto_relevant (or autorrel) model.
 
