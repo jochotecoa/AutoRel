@@ -1,42 +1,32 @@
-# AutoRel
+# AutoRel (auto_significant)
 
-Welcome to the AutoRel (auto_relevant or autorrel) model.
+**AutoRel** (Automated Relevancy) is a framework designed to identify biologically relevant genes from differential expression analysis, going beyond simple statistical significance (p-values).
 
-To be run, it requires the following installations:
-- R language
-- DESeq2 R package
+## Project Overview
+The core of this project is the **autorrel** model, which can be used to process DESeq2 outputs to prioritize genes that show consistent and high-magnitude changes across different modeling strategies.
 
-One can access **"AutoRel/scripts/autorrel/run_autorrel.R"** to introduce the data and run the model.
+## Directory Structure
+- **`scripts/`**: 
+    - **`autorrel/`**: Core model implementation (`run_autorrel.R`).
+    - **`analysis/`**: Pipeline and model comparison scripts.
+    - **`case_studies/`**: Specific applications (APAP, Colorectal Cancer, etc.).
+    - **`functions/`**: Utility functions used across the project.
+    - **`pre-processing/`**: Data cleaning and preparation.
+    - **`plotting/`**: Visualization scripts.
+- **`data/`**: Input datasets for the model.
+- **`output/`**: Results, figures, and model exports.
 
-After running DESeq2, 4 files/variables that can be recovered from the DESeq2 output are needed:
-- **norm_counts**: These are the normalized counts. 
-  - They can be obtained with the following line:
-  ```
-  norm_counts = DESeq2::counts(object = dds, normalized = T)
-  ```
-- **res**: this is the results object of DESeq2, where the statistical results are stored.
-  - res can be obtained with the following line:
-  ```
-  res <- results(dds)
-  ```
-- **coldata**:  dataframe which you specified  in DESeq2 to split between control and treatment
-  For example, if your DESeq2 code contained the following line:
+## Usage
+To use the model, refer to `scripts/autorrel/run_autorrel.R`. You will need:
+1.  **Normalized Counts**: From `DESeq2::counts(dds, normalized = T)`.
+2.  **Results Object**: From `DESeq2::results(dds)`.
+3.  **ColData**: Metadata describing your samples.
+4.  **Contrast Group**: The column name defining your experimental groups.
 
-  dds = DESeqDataSetFromMatrix(countData = cts, 
-                               colData = **coldata**, 
-                               design = ~ Group)
+## Requirements
+- R
+- DESeq2
+- Tidyverse (recommended)
 
-- **contrast_group**: One last string character you need to specify
- This is the column name of your 'coldata' data.frame
-  Using the prior example: 
-  
-    dds = DESeqDataSetFromMatrix(countData = cts, 
-                               colData = coldata, 
-                               design = ~ **Group**)
-    ```
-    contrast_group = 'Group'
-    ```
-- **output_path**: Path where the output of the autorrel model will be saved
-```
-output_path = 'output/example_files/'
-```
+---
+*Developed by Juan Ochoteco Asensio*
