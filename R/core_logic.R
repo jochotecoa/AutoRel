@@ -110,6 +110,11 @@ derive_features_from_res <- function(res) {
 #' Run AutoRel Prioritization
 #' @export
 run_prioritization <- function(norm_counts, res, coldata, contrast_group, control_level, model_path, output_path) {
+  # 0. Validate and Clean Inputs
+  cleaned <- validate_inputs(norm_counts, coldata, contrast_group, control_level)
+  norm_counts <- cleaned$counts
+  coldata <- cleaned$metadata
+  
   message("Deriving features...")
   count_feats <- derive_features_from_counts(norm_counts, coldata, contrast_group, control_level)
   stat_feats <- derive_features_from_res(res)

@@ -37,6 +37,17 @@ results <- run_prioritization(
 )
 ```
 
+## 📦 Model Versioning
+This tool uses **GitHub Releases** to manage model versions. This ensures that the code version you use is always paired with the correct trained model.
+
+### For Maintainers: How to Release a New Model
+To update the model hosted on GitHub:
+1.  **Tag the commit:** `git tag v0.1.0`
+2.  **Push the tag:** `git push origin v0.1.0`
+3.  **Create a Release** on GitHub and upload the `autorrel.rds` file as a binary asset.
+
+The `install_AutoRel.R` script will then automatically pull the model from that release.
+
 ## 🐳 Docker Usage
 Docker allows you to run AutoRel without worrying about R dependencies.
 

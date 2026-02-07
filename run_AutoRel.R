@@ -39,25 +39,40 @@ suppressPackageStartupMessages({
   library(randomForest)
 })
 
-# 4. Resolve Model Path
+# 4. Read coldata for resolution
+coldata <- read.csv(opt$metadata, stringsAsFactors = TRUE)
+
+# 5. Resolve Control Group (Interactive fallback)
+lvls <- levels(as.factor(coldata[[opt$contrast]]))
+control_level <- opt$control
+
+if (is.null(control_level)) {
+  message("No control group specified via --control.")
+  print(paste(seq(1, length(lvls)), ':', lvls))
+  cat("Which level is your control group? (Type a number): ")
+  control_idx = scan(n=1, quiet = TRUE)
+  control_level = lvls[control_idx]
+}
+
+# 6. Resolve Model Path
 # When installed, model is in system.file("extdata", "autorrel.rds", package="AutoRel")
 model_path <- "inst/extdata/autorrel.rds"
 if (!file.exists(model_path)) {
   model_path <- system.file("extdata", "autorrel.rds", package="AutoRel")
 }
 
-# 5. Run Prioritization
+# 7. Run Prioritization
 results <- run_prioritization(
   norm_counts = read.csv(opt$counts),
   res = read.csv(opt$results),
-  coldata = read.csv(opt$metadata, stringsAsFactors = TRUE),
+  coldata = coldata,
   contrast_group = opt$contrast,
-  control_level = opt$control,
+  control_level = control_level,
   model_path = model_path,
   output_path = opt$output
 )
 
-# 6. Generate Report
+# 8. Generate Report
 if (opt$report) {
   message("Generating Visual Report...")
   abs_output_path <- normalizePath(opt$output, mustWork = FALSE)
