@@ -28,17 +28,34 @@ metadata <- data.frame(
 )
 write.csv(metadata, "data/test_data/metadata.csv")
 
+# 4. Ensure Model exists (create dummy if missing for testing)
+if (!file.exists("models/autorrel.rds")) {
+  message("Model not found. Creating a DUMMY model for testing purposes...")
+  if (!dir.exists("models")) dir.create("models")
+  
+  library(randomForest)
+  # Create a dummy model with at least 2 rows and 2 classes
+  dummy_df <- data.frame(
+    rowname=c("gene1", "gene2"), 
+    baseMean=c(1, 2), 
+    pred=factor(c("relevant", "irrelevant"), levels=c("relevant", "irrelevant"))
+  )
+  dummy_mod <- randomForest(pred ~ baseMean, data=dummy_df)
+  saveRDS(dummy_mod, "models/autorrel.rds")
+}
+
 message("Testing installation...")
 
 # 4. Run the Tool
-cmd <- "Rscript run_AutoRel.R --counts data/test_data/counts.csv --results data/test_data/results.csv --metadata data/test_data/metadata.csv --contrast Group --control Control --output output/test_run"
+cmd <- "Rscript run_AutoRel.R --counts data/test_data/counts.csv --results data/test_data/results.csv --metadata data/test_data/metadata.csv --contrast Group --control Control --output output/test_run --report"
 message(paste("Executing:", cmd))
 system(cmd)
 
 # 5. Verify Results
-if (file.exists("output/test_run/all_results.csv")) {
-  message("\nSUCCESS: AutoRel test run completed successfully!")
+if (file.exists("output/test_run/all_results.csv") && file.exists("output/test_run/AutoRel_Report.html")) {
+  message("\nSUCCESS: AutoRel test run (including Report) completed successfully!")
   message("Results found in output/test_run/all_results.csv")
+  message("Report found in output/test_run/AutoRel_Report.html")
 } else {
-  stop("\nFAILURE: Output files were not generated. Check for R errors above.")
+  stop("\nFAILURE: Output files or Report were not generated. Check for R errors above.")
 }

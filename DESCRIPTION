@@ -1,0 +1,27 @@
+Package: AutoRel
+Type: Package
+Title: Automated Relevancy Prioritization for RNA-Seq
+Version: 0.1.0
+Author: Juan Ochoteco Asensio
+Maintainer: Juan Ochoteco Asensio <jochotecoa@gmail.com>
+Description: A tool to prioritize biologically relevant genes from RNA-Seq differential expression analysis using machine learning.
+License: MIT
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.2.3
+Imports: 
+    tidyverse,
+    caret,
+    magrittr,
+    progress,
+    randomForest,
+    pheatmap,
+    pbmcapply,
+    rmarkdown,
+    knitr,
+    DT,
+    optparse,
+    BiocManager
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

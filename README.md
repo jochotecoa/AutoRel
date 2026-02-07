@@ -4,19 +4,51 @@
 
 ## 🚀 Quick Start (CLI)
 
-1.  **Install dependencies and model:**
-    ```bash
-    Rscript install_AutoRel.R
+1.  **Install as an R Package (Directly from GitHub):**
+    ```R
+    # In R:
+    devtools::install_github("jochotecoa/AutoRel")
     ```
 
-2.  **Run the analysis:**
+2.  **Run via CLI:**
     ```bash
-    Rscript run_AutoRel.R --counts counts.csv --results res.csv --metadata meta.csv --contrast Group --control Control --output results/
+    Rscript run_AutoRel.R --counts counts.csv --results res.csv --metadata meta.csv --contrast Group --control Control --report
     ```
 
 3.  **Verify installation (Optional):**
     ```bash
     Rscript test_installation.R
+    ```
+
+## 🛠️ Developer Usage
+You can use AutoRel directly inside your R scripts:
+
+```R
+library(AutoRel)
+
+results <- run_prioritization(
+  norm_counts = my_counts,
+  res = my_deseq2_results,
+  coldata = my_metadata,
+  contrast_group = "Group",
+  control_level = "Control",
+  model_path = system.file("extdata", "autorrel.rds", package="AutoRel"),
+  output_path = "results/"
+)
+```
+
+## 🐳 Docker Usage
+Docker allows you to run AutoRel without worrying about R dependencies.
+
+1.  **Build the image:**
+    ```bash
+    docker build -t autorell .
+    ```
+
+2.  **Run the analysis:**
+    (Mount your local data folder to `/app/data` in the container)
+    ```bash
+    docker run -v /path/to/your/data:/app/data autorell --counts data/counts.csv --results data/res.csv --metadata data/meta.csv --contrast Group --control Control
     ```
 
 ## CLI Arguments
@@ -28,6 +60,14 @@
 | `-g, --contrast` | Column name in metadata used for grouping |
 | `-l, --control` | (Optional) Name of the control level |
 | `-o, --output` | (Optional) Output directory (default: output/autorrel_results) |
+| `--report`     | (Optional) Generate an automated HTML analysis report |
+
+## 📊 Visual Reporting
+When using the `--report` flag, AutoRel generates a professional HTML report containing:
+- **Summary findings:** Total genes prioritized as relevant.
+- **Interactive Tables:** Filterable list of relevant genes.
+- **Relevance vs. Significance Plot:** A volcano-style visualization highlighting prioritized genes.
+- **Top Genes Heatmap:** Scaled expression profiles of the top 20 prioritized genes.
 
 ## Project Structure
 - **`run_AutoRel.R`**: Main Command Line Interface.

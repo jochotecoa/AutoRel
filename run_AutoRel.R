@@ -1,14 +1,26 @@
 #!/usr/bin/env Rscript
+# AutoRel CLI Wrapper
+
+# 1. Load Dependencies and Package Functions
+# In a local dev environment, we source the R folder. 
+# Once installed, user would do library(AutoRel)
+if (file.exists("R/core_logic.R")) {
+  invisible(lapply(list.files("R", full.names = TRUE), source))
+} else {
+  library(AutoRel)
+}
+
 library(optparse)
 
-# 1. Define CLI Arguments
+# 2. Define CLI Arguments
 option_list = list(
   make_option(c("-c", "--counts"), type="character", default=NULL, help="Path to normalized counts CSV", metavar="FILE"),
   make_option(c("-r", "--results"), type="character", default=NULL, help="Path to DESeq2 results CSV", metavar="FILE"),
   make_option(c("-m", "--metadata"), type="character", default=NULL, help="Path to coldata/metadata CSV", metavar="FILE"),
   make_option(c("-g", "--contrast"), type="character", default=NULL, help="Column name for contrast group"),
   make_option(c("-l", "--control"), type="character", default=NULL, help="Name of the control level"),
-  make_option(c("-o", "--output"), type="character", default="output/autorrel_results", help="Output directory")
+  make_option(c("-o", "--output"), type="character", default="output/autorrel_results", help="Output directory"),
+  make_option(c("--report"), type="logical", action="store_true", default=FALSE, help="Generate HTML report")
 )
 
 opt_parser = OptionParser(option_list=option_list)
@@ -19,57 +31,47 @@ if (is.null(opt$counts) || is.null(opt$results) || is.null(opt$metadata) || is.n
   stop("Missing mandatory arguments. Please provide --counts, --results, --metadata, and --contrast.", call.=FALSE)
 }
 
-# 2. Load Libraries
+# 3. Load Libraries
 suppressPackageStartupMessages({
   library(tidyverse)
   library(caret)
   library(magrittr)
-  library(progress)
+  library(randomForest)
 })
 
-# 3. Read Data
-message("Loading data...")
-norm_counts <- read.csv(opt$counts, row.names = 1)
-res <- read.csv(opt$results, row.names = 1)
-coldata <- read.csv(opt$metadata, stringsAsFactors = TRUE, row.names = 1)
-contrast_group <- opt$contrast
-output_path <- opt$output
-
-# 4. Handle Control Group
-lvls = levels(coldata[, contrast_group])
-if (!is.null(opt$control)) {
-  if (!(opt$control %in% lvls)) {
-    stop(paste("Control level", opt$control, "not found in levels:", paste(lvls, collapse=", ")))
-  }
-  control_level <- opt$control
-  message(paste("Using control group:", control_level))
-} else {
-  # Fallback to interactive if not provided
-  message("No control group specified via --control.")
-  print(paste(seq(1, length(lvls)), ':', lvls))
-  cat("Which level is your control group? (Type a number): ")
-  control_idx = scan(n=1, quiet = TRUE)
-  control_level = lvls[control_idx]
+# 4. Resolve Model Path
+# When installed, model is in system.file("extdata", "autorrel.rds", package="AutoRel")
+model_path <- "inst/extdata/autorrel.rds"
+if (!file.exists(model_path)) {
+  model_path <- system.file("extdata", "autorrel.rds", package="AutoRel")
 }
 
-# 5. Execute Pipeline
-# We need to set up variables that pipeline_autorrel.R expects
-message("Running AutoRel Pipeline...")
+# 5. Run Prioritization
+results <- run_prioritization(
+  norm_counts = read.csv(opt$counts),
+  res = read.csv(opt$results),
+  coldata = read.csv(opt$metadata, stringsAsFactors = TRUE),
+  contrast_group = opt$contrast,
+  control_level = opt$control,
+  model_path = model_path,
+  output_path = opt$output
+)
 
-# The original pipeline script has hardcoded model path and interactive scan.
-# I will create a temporary 'patched' version of the pipeline to make it a tool.
+# 6. Generate Report
+if (opt$report) {
+  message("Generating Visual Report...")
+  abs_output_path <- normalizePath(opt$output, mustWork = FALSE)
+  report_template <- "inst/reports/report_template.Rmd"
+  if (!file.exists(report_template)) {
+    report_template <- system.file("reports", "report_template.Rmd", package="AutoRel")
+  }
+  
+  rmarkdown::render(report_template, 
+                    output_file = "AutoRel_Report.html",
+                    output_dir = abs_output_path,
+                    params = list(output_path = abs_output_path, contrast_group = opt$contrast),
+                    quiet = TRUE)
+  message(paste("Report generated at:", file.path(abs_output_path, "AutoRel_Report.html")))
+}
 
-pipeline_code <- readLines("scripts/autorrel/pipeline_autorrel.R")
-
-# Patch 1: Remove the interactive scan
-start_idx <- grep("lvls = levels", pipeline_code)
-end_idx <- grep("control_level = lvls", pipeline_code)
-pipeline_code[start_idx:end_idx] <- "# Control level handled by CLI wrapper"
-
-# Patch 2: Fix model path
-pipeline_code <- gsub("../temp_dir/autorrel.rds", "models/autorrel.rds", pipeline_code)
-
-# Execute the patched code
-eval(parse(text = pipeline_code))
-
-message(paste("AutoRel finished. Results saved to:", output_path))
+message("AutoRel Analysis Complete.")
