@@ -14,6 +14,11 @@
     Rscript run_AutoRel.R --counts counts.csv --results res.csv --metadata meta.csv --contrast Group --control Control --output results/
     ```
 
+3.  **Verify installation (Optional):**
+    ```bash
+    Rscript test_installation.R
+    ```
+
 ## CLI Arguments
 | Argument | Description |
 | :--- | :--- |
