@@ -31,7 +31,7 @@ relevant <- read.csv(relevant_file)
 
 # To create a volcano-style plot, we need to merge with original results (p-values)
 # For the template, we'll look for results_dds_deseq2.rds in temp data
-orig_res_path <- normalizePath("data/temporary_data/results_dds_deseq2.rds", mustWork = FALSE)
+orig_res_path <- normalizePath(file.path(params$output_path, "temporary_data", "results_dds_deseq2.rds"), mustWork = FALSE)
 if (file.exists(orig_res_path)) {
   orig_res <- readRDS(orig_res_path) %>% as.data.frame()
   plot_df <- results %>% inner_join(tibble::rownames_to_column(orig_res, "rowname"), by = "rowname")
@@ -77,7 +77,7 @@ if (!is.null(plot_df)) {
 Showing normalized expression levels for the most relevant genes.
 
 ```{r, fig.width=10, fig.height=8}
-norm_counts_path <- "data/temporary_data/norm_counts.rds"
+norm_counts_path <- file.path(params$output_path, "temporary_data", "norm_counts.rds")
 if (file.exists(norm_counts_path)) {
   counts <- readRDS(norm_counts_path)
   top_genes <- relevant$rowname[1:min(20, nrow(relevant))]

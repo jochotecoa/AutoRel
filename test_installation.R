@@ -29,9 +29,9 @@ metadata <- data.frame(
 write.csv(metadata, "data/test_data/metadata.csv")
 
 # 4. Ensure Model exists (create dummy if missing for testing)
-if (!file.exists("models/autorrel.rds")) {
+if (!file.exists("inst/extdata/autorrel.rds")) {
   message("Model not found. Creating a DUMMY model for testing purposes...")
-  if (!dir.exists("models")) dir.create("models")
+  if (!dir.exists("inst/extdata")) dir.create("inst/extdata", recursive = TRUE)
   
   library(randomForest)
   # Create a dummy model with at least 2 rows and 2 classes
@@ -41,13 +41,14 @@ if (!file.exists("models/autorrel.rds")) {
     pred=factor(c("relevant", "irrelevant"), levels=c("relevant", "irrelevant"))
   )
   dummy_mod <- randomForest(pred ~ baseMean, data=dummy_df)
-  saveRDS(dummy_mod, "models/autorrel.rds")
+  saveRDS(dummy_mod, "inst/extdata/autorrel.rds")
 }
 
 message("Testing installation...")
 
 # 4. Run the Tool
-cmd <- "Rscript run_AutoRel.R --counts data/test_data/counts.csv --results data/test_data/results.csv --metadata data/test_data/metadata.csv --contrast Group --control Control --output output/test_run --report"
+rscript_bin <- file.path(R.home("bin"), "Rscript")
+cmd <- paste(shQuote(rscript_bin), "run_AutoRel.R --counts data/test_data/counts.csv --results data/test_data/results.csv --metadata data/test_data/metadata.csv --contrast Group --control Control --output output/test_run --report")
 message(paste("Executing:", cmd))
 system(cmd)
 

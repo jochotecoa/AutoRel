@@ -83,10 +83,6 @@ When using the `--report` flag, AutoRel generates a professional HTML report con
 ## Project Structure
 - **`run_AutoRel.R`**: Main Command Line Interface.
 - **`install_AutoRel.R`**: Script to install dependencies and download the model.
-- **`scripts/`**: 
-    - **`autorrel/`**: Core pipeline and model logic.
-    - **`analysis/`**: Pipeline and model comparison scripts.
-    - **`case_studies/`**: Specific applications (APAP, Colorectal Cancer, etc.).
 - **`models/`**: Storage for the trained `autorrel.rds` model.
 - **`data/`**: Input datasets and example files.
 - **`output/`**: Results, figures, and model exports.

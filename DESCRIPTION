@@ -8,7 +8,7 @@ Description: A tool to prioritize biologically relevant genes from RNA-Seq diffe
 License: MIT
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.3
 Imports: 
     tidyverse,
     caret,
@@ -21,7 +21,8 @@ Imports:
     knitr,
     DT,
     optparse,
-    BiocManager
+    BiocManager,
+    matrixStats
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

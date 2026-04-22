@@ -1,5 +1,5 @@
 #' Derive Features from Normalized Counts
-#' @import tidyverse magrittr edgeR
+#' @import tidyverse magrittr edgeR matrixStats
 #' @export
 derive_features_from_counts <- function(norm_counts, coldata, contrast_group, control_level) {
   # 1. Clean row names
@@ -7,84 +7,85 @@ derive_features_from_counts <- function(norm_counts, coldata, contrast_group, co
     norm_counts <- norm_counts %>% tibble::column_to_rownames(colnames(norm_counts)[1])
   }
   
+  norm_counts_mat <- as.matrix(norm_counts)
+  
   # 2. Identify groups
   colnames_con_logi <- grepl(pattern = control_level, coldata[, contrast_group])
   colnames_treat_logi <- !grepl(pattern = control_level, coldata[, contrast_group])
   
-  # 3. Rename columns internally for consistency
-  orig_names <- colnames(norm_counts)
-  colnames(norm_counts)[colnames_con_logi] <- paste0('ConDMSO_', orig_names[colnames_con_logi])
-  colnames(norm_counts)[colnames_treat_logi] <- paste0('APA_The_', orig_names[colnames_treat_logi])
-  
-  colnames_con <- colnames(norm_counts)[grep('ConDMSO', colnames(norm_counts))]
-  colnames_treat <- colnames(norm_counts)[grep('APA_The', colnames(norm_counts))]
+  # 3. Suffixes
+  colnames_con <- colnames(norm_counts_mat)[colnames_con_logi]
+  colnames_treat <- colnames(norm_counts_mat)[colnames_treat_logi]
   
   # 4. CPM Rule
-  cpm_norm <- norm_counts %>% edgeR::cpm() %>% as.data.frame()
-  cpm_norm_con <- cpm_norm[, colnames_con]
-  cpm_norm_treat <- cpm_norm[, colnames_treat]
+  cpm_norm <- edgeR::cpm(norm_counts_mat)
+  cpm_norm_con <- cpm_norm[, colnames_con, drop=FALSE]
+  cpm_norm_treat <- cpm_norm[, colnames_treat, drop=FALSE]
   
   cpm_feat <- data.frame(
-    rule_cpm_0.75_above_1 = (rowSums(cpm_norm_con > 1, na.rm = T)/ncol(cpm_norm_con) >= 0.75) | 
-                            (rowSums(cpm_norm_treat > 1, na.rm = T)/ncol(cpm_norm_treat) >= 0.75),
-    row.names = rownames(norm_counts)
+    rule_cpm_0.75_above_1 = (rowSums(cpm_norm_con > 1, na.rm = TRUE)/ncol(cpm_norm_con) >= 0.75) | 
+                            (rowSums(cpm_norm_treat > 1, na.rm = TRUE)/ncol(cpm_norm_treat) >= 0.75),
+    row.names = rownames(norm_counts_mat)
   )
   
   # 5. Summary Stats (Mean, SD, Var, Quantiles)
-  norm_counts_con <- norm_counts[, colnames_con]
-  norm_counts_treat <- norm_counts[, colnames_treat]
+  norm_counts_con <- norm_counts_mat[, colnames_con, drop=FALSE]
+  norm_counts_treat <- norm_counts_mat[, colnames_treat, drop=FALSE]
   
   # Helper for stats
-  get_stats <- function(df, suffix) {
+  get_stats <- function(mat, suffix) {
+    if (is.null(dim(mat))) mat <- matrix(mat, ncol = 1)
+    
     res_stats <- data.frame(
-      mean = apply(df, 1, mean),
-      sd = apply(df, 1, sd),
-      var = apply(df, 1, var),
-      row.names = rownames(df)
+      mean = matrixStats::rowMeans2(mat),
+      sd = matrixStats::rowSds(mat),
+      var = matrixStats::rowVars(mat),
+      row.names = rownames(mat)
     )
-    quants <- as.data.frame(t(apply(df, 1, quantile, seq(0, 1, 0.05))))
+    
+    quants <- as.data.frame(matrixStats::rowQuantiles(mat, probs = seq(0, 1, 0.05)))
     colnames(quants) <- paste0('quantile_', colnames(quants))
     res_stats <- cbind(res_stats, quants)
     
     # Subsample median (10 portions)
-    num_var <- ncol(df)
+    num_var <- ncol(mat)
     ct_port <- num_var / 10
     for (portion in 1:10) {
       c_i <- max(1, ceiling(ct_port * (portion - 1)))
       c_f <- floor(ct_port * portion)
       if (c_f >= c_i) {
-        y <- df[, c_i:c_f, drop=FALSE]
-        res_stats[[paste0(portion, 'th_subset_median')]] <- apply(y, 1, median)
+        y <- mat[, c_i:c_f, drop=FALSE]
+        res_stats[[paste0(portion, 'th_subset_median')]] <- matrixStats::rowMedians(y)
       } else {
-        res_stats[[paste0(portion, 'th_subset_median')]] <- df[, min(c_i, num_var)]
+        res_stats[[paste0(portion, 'th_subset_median')]] <- mat[, min(c_i, num_var)]
       }
     }
     
-    res_stats$N_nonexpressed_samples <- apply(df, 1, function(x) sum(x == 0))
-    res_stats$Proportion_nonexpressed_samples <- res_stats$N_nonexpressed_samples / ncol(df)
+    res_stats$N_nonexpressed_samples <- rowSums(mat == 0)
+    res_stats$Proportion_nonexpressed_samples <- res_stats$N_nonexpressed_samples / ncol(mat)
     
     colnames(res_stats) <- paste0(colnames(res_stats), "_", suffix)
     return(res_stats)
   }
   
-  stats_con <- get_stats(norm_counts_con, "ConDMSO")
-  stats_treat <- get_stats(norm_counts_treat, "APA_The")
+  stats_con <- get_stats(norm_counts_con, "Control")
+  stats_treat <- get_stats(norm_counts_treat, "Treatment")
   
   final_feats <- cbind(stats_con, stats_treat, cpm_feat)
   
   # 6. Fold Changes between features
-  feature_names <- colnames(stats_con) %>% gsub('_ConDMSO', '', .)
+  feature_names <- colnames(stats_con) %>% gsub('_Control', '', .)
   for (f_name in feature_names) {
-    f_con <- paste0(f_name, "_ConDMSO")
-    f_treat <- paste0(f_name, "_APA_The")
+    f_con <- paste0(f_name, "_Control")
+    f_treat <- paste0(f_name, "_Treatment")
     if (f_treat %in% colnames(final_feats)) {
       final_feats[[paste0('foldchange_', f_name)]] <- (final_feats[[f_treat]] + 0.01) / (final_feats[[f_con]] + 0.01)
     }
   }
   
   # 7. Quantile Rules (Simplified version of the complex rules in deriving_features script)
-  final_feats$onequartilediff_rule <- (final_feats$`quantile_50%_APA_The` > final_feats$`quantile_75%_ConDMSO`) | 
-                                      (final_feats$`quantile_50%_APA_The` < final_feats$`quantile_25%_ConDMSO`)
+  final_feats$onequartilediff_rule <- (final_feats$`quantile_50%_Treatment` > final_feats$`quantile_75%_Control`) | 
+                                      (final_feats$`quantile_50%_Treatment` < final_feats$`quantile_25%_Control`)
   
   return(final_feats)
 }
@@ -124,6 +125,11 @@ run_prioritization <- function(norm_counts, res, coldata, contrast_group, contro
     tibble::rownames_to_column("rowname") %>% 
     merge(tibble::rownames_to_column(stat_feats, "rowname"), by = "rowname")
   
+  # Handle specific feature naming for backward compatibility with pre-trained models
+  # The original model was trained with 'ConDMSO' as control and 'APA_The' as treatment
+  colnames(merged_data) <- gsub('_Control', '_ConDMSO', colnames(merged_data))
+  colnames(merged_data) <- gsub('_Treatment', '_APA_The', colnames(merged_data))
+  
   # Clean column names for model compatibility
   colnames(merged_data) <- make.names(colnames(merged_data)) %>% 
     gsub('abo', 'avo', .) %>% 
@@ -150,6 +156,7 @@ run_prioritization <- function(norm_counts, res, coldata, contrast_group, contro
   )
   
   results$pred <- results$pred %>% 
+    as.character() %>% 
     gsub('nonsignificant', 'irrelevant', .) %>% 
     gsub('significant', 'relevant', .)
   
@@ -158,10 +165,11 @@ run_prioritization <- function(norm_counts, res, coldata, contrast_group, contro
   write.csv(results, file.path(output_path, "all_results.csv"), row.names = FALSE)
   write.csv(results[results$pred == "relevant", ], file.path(output_path, "relevant_genes.csv"), row.names = FALSE)
   
-  # Save temp data for reporting
-  if (!dir.exists("data/temporary_data")) dir.create("data/temporary_data", recursive = TRUE)
-  saveRDS(norm_counts, "data/temporary_data/norm_counts.rds")
-  saveRDS(stat_feats, "data/temporary_data/results_dds_deseq2.rds")
+  # Save temp data for reporting inside the output_path instead of hardcoded data/ directory
+  temp_data_dir <- file.path(output_path, "temporary_data")
+  if (!dir.exists(temp_data_dir)) dir.create(temp_data_dir, recursive = TRUE)
+  saveRDS(norm_counts, file.path(temp_data_dir, "norm_counts.rds"))
+  saveRDS(stat_feats, file.path(temp_data_dir, "results_dds_deseq2.rds"))
   
   return(results)
 }
